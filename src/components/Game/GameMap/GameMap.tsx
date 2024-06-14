@@ -1,6 +1,6 @@
 // Importamos React y useState desde React
 import React, { useState } from 'react';
-import useGameStore from '../../store/store';
+import useGameStore from '../../../store/BoardStore';
 
 // Definimos el tipo para las props
 type GameMapProps = {
@@ -40,7 +40,7 @@ const GameMap: React.FC<GameMapProps> = () => {
 
     // Si la suma de índices de fila y columna es par, devuelve 'bg-green-200'
     // Si no, devuelve 'bg-green-300'
-    return (row + col) % 2 === 0 ? 'bg-green-200' : 'bg-green-300';
+    return (row + col) % 2 === 0 ? 'bg-green-300' : 'bg-green-400';
   };
 
   // Función para manejar el evento de hover sobre una celda
@@ -51,17 +51,17 @@ const GameMap: React.FC<GameMapProps> = () => {
 
   // Renderizamos el tablero usando JSX
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center border border-red-800">
       {boardMatrix.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`w-8 h-8 ${getCellColor(rowIndex, colIndex)}`}
+              className={`w-8 h-8 ${getCellColor(rowIndex, colIndex)} text-center cursor-none`}
               onMouseEnter={() => handleCellHover(rowIndex, colIndex)}
               onMouseLeave={() => setHoveredCell(null)}
             >
-              {cell ? 'si' : 'no'}
+              {cell?.imgCode}
             </div>
           ))}
         </div>
