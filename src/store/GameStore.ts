@@ -1,79 +1,58 @@
 import { create } from 'zustand';
 import { BaseProperties, Character } from '../types/character.type';
 
-// Definimos el tipo para el estado del tablero
-type BoardState<T extends BaseProperties> = {
-  rows: number;
-  cols: number;
-  boardMatrix: (Character<T> | null)[][];
+type GameState<T extends BaseProperties> = {
   gold: number;
-  villagers: number;
-  warriors: number;
-  setBoardSize: (rows: number, cols: number) => void;
-  setCellValue: (row: number, col: number, value: Character<T> | null) => void;
-  setBoardMatrix: (boardMatrix: (Character<T> | null)[][]) => void;
-  updateResources: (gold: number, villagers: number, warriors: number) => void;
+  builders: number;
+  heroes: number;
+  selectedCharacter: Character<T> | null;
+  isSelected: boolean;
+  selectedCell: { row: number; col: number } | null;
+  updateResources: (gold: number, builders: number, heroes: number) => void;
+  setSelectedCharacter: (character: Character<T> | null) => void;
+  setSelectedCell: (cell: { row: number; col: number } | null) => void;
+  resetSelection: () => void; // Nueva función para reiniciar la selección
 };
 
-// Función inicializadora para el estado del tablero
-const createBoardState = <T extends BaseProperties>() => (
-  set: (partial: BoardState<T> | Partial<BoardState<T>> | ((state: BoardState<T>) => BoardState<T> | Partial<BoardState<T>>), replace?: boolean) => void
-): BoardState<T> => ({
-  rows: 0,
-  cols: 0,
-  boardMatrix: [],
+const createGameState = <T extends BaseProperties>() => (
+  set: (partial: GameState<T> | Partial<GameState<T>> | ((state: GameState<T>) => GameState<T> | Partial<GameState<T>>), replace?: boolean) => void
+): GameState<T> => ({
   gold: 0,
-  villagers: 0,
-  warriors: 0,
+  builders: 2,
+  heroes: 0,
+  selectedCharacter: null,
+  isSelected: false,
+  selectedCell: null,
 
-  // Función para establecer el tamaño del tablero
-  setBoardSize: (rows, cols) =>
-    set((state) => ({
-      ...state,
-      rows,
-      cols,
-      boardMatrix: Array(rows)
-        .fill(null)
-        .map(() => Array(cols).fill(null)),
-    })),
-
-  // Función para establecer el valor de una celda en la matriz
-  setCellValue: (row, col, value) =>
-    set((state) => {
-      if (row < 0 || row >= state.rows || col < 0 || col >= state.cols) {
-        return state;
-      }
-
-      const newBoardMatrix = state.boardMatrix.map((r, rowIndex) =>
-        rowIndex === row ? r.map((c, colIndex) => (colIndex === col ? value : c)) : r
-      );
-
-      return {
-        ...state,
-        boardMatrix: newBoardMatrix,
-      };
-    }),
-
-  // Función para establecer la matriz del tablero
-  setBoardMatrix: (boardMatrix) =>
-    set((state) => ({
-      ...state,
-      rows: boardMatrix.length,
-      cols: boardMatrix[0]?.length || 0,
-      boardMatrix,
-    })),
-
-  // Función para actualizar los recursos
-  updateResources: (gold, villagers, warriors) =>
+  updateResources: (gold, builders, heroes) =>
     set((state) => ({
       ...state,
       gold,
-      villagers,
-      warriors,
+      builders,
+      heroes,
+    })),
+
+  setSelectedCharacter: (character) =>
+    set((state) => ({
+      ...state,
+      selectedCharacter: character,
+      isSelected: character !== null,
+    })),
+
+  setSelectedCell: (cell) =>
+    set((state) => ({
+      ...state,
+      selectedCell: cell,
+    })),
+
+  resetSelection: () =>
+    set((state) => ({
+      ...state,
+      selectedCharacter: null,
+      isSelected: false,
     })),
 });
 
-// Creamos el store usando la función create de Zustand
-const useGameStore = create<BoardState<BaseProperties>>((set) => createBoardState<BaseProperties>()(set));
+const useGameStore = create<GameState<BaseProperties>>((set) => createGameState<BaseProperties>()(set));
 
 export default useGameStore;

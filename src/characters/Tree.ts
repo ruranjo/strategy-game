@@ -7,6 +7,7 @@ export const Tree:Character<TreeProperties> = {
     imgCode:'🌳',
     x:0,
     y:0,
+    description:'',
     properties:{
         age:1,
         height:1,

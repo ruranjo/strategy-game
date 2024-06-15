@@ -6,9 +6,12 @@ type BoardState<T extends BaseProperties> = {
   rows: number;
   cols: number;
   boardMatrix: (Character<T> | null)[][];
+  isPushMode: boolean; // Estado para el modo push
   setBoardSize: (rows: number, cols: number) => void;
   setBoardMatrix: (boardMatrix: (Character<T> | null)[][]) => void;
   setCellValue: (row: number, col: number, value: Character<T> | null) => void;
+  enablePushMode: () => void; // Habilitar el modo push
+  disablePushMode: () => void; // Deshabilitar el modo push
 };
 
 // Función inicializadora para el estado del tablero
@@ -18,6 +21,7 @@ const createBoardState = <T extends BaseProperties>() => (
   rows: 0, // Inicializamos con 0 filas
   cols: 0, // Inicializamos con 0 columnas
   boardMatrix: [], // Inicializamos boardMatrix vacío
+  isPushMode: false, // Inicializamos el modo push como falso
 
   // Función para establecer el tamaño del tablero
   setBoardSize: (rows, cols) =>
@@ -56,6 +60,12 @@ const createBoardState = <T extends BaseProperties>() => (
         boardMatrix: newBoardMatrix,
       };
     }),
+
+  // Función para habilitar el modo push
+  enablePushMode: () => set({ isPushMode: true }),
+
+  // Función para deshabilitar el modo push
+  disablePushMode: () => set({ isPushMode: false }),
 });
 
 // Creamos el store usando la función create de Zustand
