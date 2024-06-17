@@ -10,6 +10,7 @@ export interface TreeProperties extends BaseProperties {
   
   export interface BuildingProperties extends BaseProperties {
     // Puedes agregar propiedades comunes a todos los edificios si es necesario
+    cost: number, 
   }
 
   export interface BarracaProperties extends BuildingProperties {
@@ -26,9 +27,15 @@ export interface MurallaProperties extends BuildingProperties {
 }
 
 export interface MinaDeOroProperties extends BuildingProperties {
-  // Propiedades específicas de la Mina de Oro
+  
+  cost: number;
   productionRate: number; // Tasa de producción de oro por hora
-  capacity: number; // Capacidad máxima de almacenamiento de oro
+  capacity: number;       // Capacidad máxima de almacenamiento de oro
+  timeToFullCapacity: number; // Tiempo en minutos para alcanzar la capacidad máxima
+  buildDate: Date;        // Fecha y hora de construcción
+  isFull: boolean;        // Indicador de si la mina está llena
+  currentGold: number;    // Cantidad actual de oro almacenado
+  
 }
 
 export interface AyuntamientoProperties extends BuildingProperties {
@@ -37,9 +44,16 @@ export interface AyuntamientoProperties extends BuildingProperties {
   publicServices: string[]; // Servicios públicos ofrecidos por el Ayuntamiento
 }
 
+export interface AlmacenDeOroProperties extends BuildingProperties {
+  // Propiedades específicas del Ayuntamiento
+  capacity: number
+}
+
 export interface BuilderProperties extends BaseProperties {
   constructionSpeed: number;
 }
+
+
   
 export interface Character<T extends BaseProperties> {
     id:number;
@@ -51,3 +65,5 @@ export interface Character<T extends BaseProperties> {
     description:string;
     properties: T;
 }
+
+

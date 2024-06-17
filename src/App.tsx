@@ -2,17 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { GameMap, GameMenu } from './components/Game';
 import { BaseProperties, Character, TreeProperties } from './types/character.type';
 import { Tree } from './characters/Tree';
+import { Ayuntamiento } from './characters/build'; // Asegúrate de importar el Ayuntamiento
 import useBoardStore from './store/BoardStore';
 
 const App: React.FC = () => {
-  // Utiliza el hook useBoardStore para acceder a setBoardSize desde el store
   const { setBoardSize, setBoardMatrix } = useBoardStore();
-
-  // Estado para controlar si la inicialización del tablero ha finalizado
   const [isLoading, setIsLoading] = useState(true);
 
-  // Definimos las filas y columnas iniciales
-  const initialRows = 22;
+  const initialRows = 21;
   const initialCols = 36;
 
   const generateRandomBoardMatrix = (rows: number, cols: number, treeCount: number): (Character<BaseProperties> | null)[][] => {
@@ -32,10 +29,17 @@ const App: React.FC = () => {
     return boardMatrix;
   };
 
-  // Llamamos a setBoardSize para inicializar el tamaño del tablero cuando App se monte
   useEffect(() => {
     setBoardSize(initialRows, initialCols);
     const aux = generateRandomBoardMatrix(initialRows, initialCols, 60);
+
+    // Calcular la posición central
+    const centerRow = Math.floor(initialRows / 2);
+    const centerCol = Math.floor(initialCols / 2);
+
+    // Colocar el Ayuntamiento en el centro
+    aux[centerRow][centerCol] = { ...Ayuntamiento, x: centerRow, y: centerCol };
+
     setBoardMatrix(aux);
     setIsLoading(false); // Marcar como cargado después de establecer el tablero
   }, [setBoardSize, setBoardMatrix]);
@@ -55,12 +59,3 @@ const App: React.FC = () => {
 
 export default App;
 
-/**
- 
-const buildingEmojis = [
-  { name: 'Ayuntamiento', emoji: '🏛️', description: 'Centro neurálgico de tu aldea' },
-  { name: 'Barraca', emoji: '⚔️', description: 'Entrenas tropas para ataques' },
-  { name: 'Muralla', emoji: '🧱', description: 'Protege tu aldea de ataques enemigos' },
-  { name: 'Mina de oro', emoji: '⛏️', description: 'Genera oro, moneda principal' }
-];
- */

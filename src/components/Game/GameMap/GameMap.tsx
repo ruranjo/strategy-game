@@ -1,17 +1,14 @@
-// Importamos React y useState desde React
 import React, { useState, useEffect } from 'react';
 import useBoardStore from '../../../store/BoardStore';
 import useGameStore from '../../../store/GameStore';
 import { Character, BaseProperties } from '../../../types/character.type';
 import { Constructor } from '../../../characters/builder';
 
-// Definimos el tipo para las props
 type GameMapProps = {
   rows?: number;
   cols?: number;
 };
 
-// Función para generar una posición aleatoria en el tablero
 const getRandomPosition = (rows: number, cols: number, boardMatrix: (Character<BaseProperties> | null)[][]): { row: number, col: number } => {
   let position;
   do {
@@ -24,9 +21,7 @@ const getRandomPosition = (rows: number, cols: number, boardMatrix: (Character<B
   return position;
 };
 
-// Componente funcional GameMap
 const GameMap: React.FC<GameMapProps> = () => {
-  // Usamos el store Zustand para obtener y modificar el estado del tablero y del juego
   const { boardMatrix, isPushMode, setBoardMatrix, disablePushMode, rows, cols } = useBoardStore((state) => ({
     boardMatrix: state.boardMatrix,
     rows: state.rows,
@@ -36,58 +31,53 @@ const GameMap: React.FC<GameMapProps> = () => {
     disablePushMode: state.disablePushMode,
   }));
 
-  const { selectedCharacter, isSelected, setSelectedCharacter, setSelectedCell, builders } = useGameStore((state) => ({
+  const { selectedCharacter, isSelected, setSelectedBuild, setSelectedCharacter, selectedCell, setSelectedCell, selectedBuild, builders, gold, deductGold } = useGameStore((state) => ({
     selectedCharacter: state.selectedCharacter,
     isSelected: state.isSelected,
     setSelectedCharacter: state.setSelectedCharacter,
+    setSelectedBuild: state.setSelectedCharacter,
+    selectedBuild: state.selectedBuild,
+    selectedCell: state.selectedCell,
     setSelectedCell: state.setSelectedCell,
     builders: state.builders,
+    gold: state.gold,
+    deductGold: state.deductGold
   }));
 
-  // Estado local para rastrear la celda sobre la que se hace hover
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
 
-  // Colocar builders aleatoriamente en el tablero
   useEffect(() => {
     if (builders > 0) {
       const newBoardMatrix = [...boardMatrix];
-      console.log(newBoardMatrix)
-      
       for (let i = 0; i < builders; i++) {
         const position = getRandomPosition(rows, cols, newBoardMatrix);
-        newBoardMatrix[position.row][position.col] = Constructor
-        console.log("si")
+        newBoardMatrix[position.row][position.col] = Constructor;
       }
       setBoardMatrix(newBoardMatrix);
     }
   }, []);
 
-  // Función para determinar el color de cada casilla
   const getCellColor = (row: number, col: number): string => {
     let baseClass = '';
 
-    // Si la celda actual es la que está siendo hover, devolver color rojo
     if (hoveredCell && hoveredCell.row === row && hoveredCell.col === col) {
       baseClass = 'bg-red-500';
     } else if (hoveredCell) {
-      // Verificar si la celda actual es una celda circundante a la celda hover
       const { row: hoveredRow, col: hoveredCol } = hoveredCell;
       if (
-        (row === hoveredRow - 1 && col === hoveredCol) || // Arriba
-        (row === hoveredRow + 1 && col === hoveredCol) || // Abajo
-        (row === hoveredRow && col === hoveredCol - 1) || // Izquierda
-        (row === hoveredRow && col === hoveredCol + 1)    // Derecha
+        (row === hoveredRow - 1 && col === hoveredCol) ||
+        (row === hoveredRow + 1 && col === hoveredCol) ||
+        (row === hoveredRow && col === hoveredCol - 1) ||
+        (row === hoveredRow && col === hoveredCol + 1)
       ) {
-        baseClass = 'bg-gray-400'; // Celdas circundantes en gris
+        baseClass = 'bg-gray-400';
       }
     }
 
-    // Si no está en hover o circundante, aplicar color según paridad
     if (!baseClass) {
       baseClass = (row + col) % 2 === 0 ? 'bg-green-300' : 'bg-green-400';
     }
 
-    // Añadir clase rounded-full si está en modo push y es circundante
     if (
       isPushMode &&
       hoveredCell &&
@@ -102,40 +92,100 @@ const GameMap: React.FC<GameMapProps> = () => {
     return baseClass;
   };
 
-  // Función para manejar el evento de hover sobre una celda
   const handleCellHover = (row: number, col: number) => {
-    // Actualizamos el estado local con la celda sobre la que se está haciendo hover
     setHoveredCell({ row, col });
   };
 
-  // Función para manejar el clic en una celda
+  type Direction = {
+    dRow: number;
+    dCol: number;
+  }
+  const directions: Direction[] = [
+    { dRow: -1, dCol: 0 },
+    { dRow: 1, dCol: 0 },
+    { dRow: 0, dCol: -1 },
+    { dRow: 0, dCol: 1 },
+    { dRow: -1, dCol: -1 },
+    { dRow: -1, dCol: 1 },
+    { dRow: 1, dCol: -1 },
+    { dRow: 1, dCol: 1 },
+  ];
+
+  const findAdjacentAvailableCell = (row: number, col: number): { newRow: number; newCol: number } | null => {
+    for (let i = 0; i < directions.length; i++) {
+      const newRow = row + directions[i].dRow;
+      const newCol = col + directions[i].dCol;
+      if (newRow >= 0 && newRow < boardMatrix.length && newCol >= 0 && newCol < boardMatrix[0].length) {
+        if (boardMatrix[newRow][newCol] === null) {
+          return { newRow, newCol };
+        }
+      }
+    }
+    return null;
+  };
+
+  const isAdjacentCellAvailable = (row: number, col: number): boolean => {
+    for (let i = 0; i < directions.length; i++) {
+      const newRow = row + directions[i].dRow;
+      const newCol = col + directions[i].dCol;
+      if (newRow >= 0 && newRow < boardMatrix.length && newCol >= 0 && newCol < boardMatrix[0].length) {
+        if (boardMatrix[newRow][newCol] === null) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   const handleCellClick = (row: number, col: number) => {
-    if (isPushMode && selectedCharacter) {
-      // Clonar la matriz para evitar mutaciones directas
-      const newBoardMatrix = [...boardMatrix];
-      newBoardMatrix[row][col] = { ...selectedCharacter, x: row, y: col };
+    if (isAdjacentCellAvailable(row, col)) {
+      if (isPushMode && selectedCharacter && selectedBuild) {
+        if (boardMatrix[row][col] === null) {
+          const newBoardMatrix = [...boardMatrix];
+          newBoardMatrix[row][col] = { ...selectedBuild, x: row, y: col };
 
-      // Actualizar el tablero
-      setBoardMatrix(newBoardMatrix);
+          const adjacentCell = findAdjacentAvailableCell(row, col);
+          if (adjacentCell) {
+            const { newRow, newCol } = adjacentCell;
 
-      // Deshabilitar el modo push
-      disablePushMode();
+            if (selectedCell) {
+              newBoardMatrix[selectedCell.row][selectedCell.col] = null;
+            }
 
-      // Restablecer la selección de personaje
-      setSelectedCharacter(null);
-      setSelectedCell(null);
+            newBoardMatrix[newRow][newCol] = { ...selectedCharacter, x: newRow, y: newCol };
+          } else {
+            console.error("No se encontró una celda adyacente disponible para el constructor");
+          }
 
-      // Forzar la re-renderización actualizando el estado del componente
-      setHoveredCell(null);
+          setBoardMatrix(newBoardMatrix);
+
+          disablePushMode();
+          setSelectedCharacter(null);
+          setSelectedBuild(null);
+          setSelectedCell(null);
+
+          setHoveredCell(null);
+
+          // Descontar el oro al colocar el edificio
+          if (selectedBuild && selectedBuild.properties) {
+            deductGold(selectedBuild.properties.cost);
+          }
+
+          
+
+        } else {
+          console.log("No es posible colocar en esta posición");
+        }
+      } else {
+        const selected = boardMatrix[row][col];
+        setSelectedCharacter(selected);
+        setSelectedCell({ row, col });
+      }
     } else {
-      // Manejar la selección de una celda sin push mode
-      const selected = boardMatrix[row][col];
-      setSelectedCharacter(selected);
-      setSelectedCell({ row, col });
+      console.log("No es posible colocar en esta posición");
     }
   };
 
-  // Renderizamos el tablero usando JSX
   return (
     <div className="flex flex-col items-center border border-red-800">
       {boardMatrix.map((row, rowIndex) => (
@@ -162,5 +212,4 @@ const GameMap: React.FC<GameMapProps> = () => {
   );
 };
 
-// Exportamos el componente GameMap
 export default GameMap;

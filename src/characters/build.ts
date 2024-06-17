@@ -1,4 +1,4 @@
-import { AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperties, MurallaProperties } from "../types/character.type";
+import { AlmacenDeOroProperties, AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperties, MurallaProperties } from "../types/character.type";
 
   export const Ayuntamiento: Character<AyuntamientoProperties> = {
     id: 5,
@@ -9,6 +9,7 @@ import { AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperti
     x:0,
     y:0,
     properties: {
+        cost: 150,
         administrativeLevel:1,
         publicServices:["hola"]
     }
@@ -25,6 +26,7 @@ import { AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperti
     properties: {
         trainingCapacity:1 ,
         troopType:"",
+        cost: 150,
     }
   };
   
@@ -39,6 +41,7 @@ import { AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperti
     properties: {
         defenseStrength: 1 ,
         height:1,
+        cost: 150,
     }
   };
   
@@ -51,8 +54,31 @@ import { AyuntamientoProperties, BarracaProperties, Character, MinaDeOroProperti
     y:0,
     description: 'Genera oro, moneda principal',
     properties: {
-        capacity: 1,
-        productionRate: 1
+      cost: 150,              // Costo inicial de construcción
+      productionRate: 1,    // Producción inicial de oro por hora
+      capacity: 500,          // Capacidad inicial de almacenamiento de oro
+      timeToFullCapacity: 1, // Tiempo en minutos para alcanzar la capacidad máxima
+      buildDate: new Date(),  // Fecha y hora actuales
+      isFull: false,          // Indicador inicial de si la mina está llena
+      currentGold: 0          // Cantidad inicial de oro almacenado
     }
   };
   
+  
+
+export const AlmacenDeOro: Character<AlmacenDeOroProperties> = {
+  id: 1,
+  name: 'Almacén de Oro',
+  role: 'Almacen',
+  imgCode: '💰',
+  x: 0,
+  y: 0,
+  description: 'Un almacén para guardar oro.',
+  properties: {
+    cost: 500, // Ejemplo de costo en oro para construir el almacén
+    capacity: 1000, // Ejemplo de capacidad máxima de almacenamiento de oro
+  },
+  
+};
+
+
