@@ -26,11 +26,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     heroes,
     selectedCharacter,
     setSelectedBuild,
-    selectedBuild,
     isSelected,
-    selectedCell,
     resetSelection,
-    setSelectedCharacter,
     goldMines,
     updateResources,
   } = useGameStore((state) => ({
@@ -49,47 +46,54 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     updateResources: state.updateResources,
   }));
 
-  const { enablePushMode } = useBoardStore((state) => ({
-    enablePushMode: state.enablePushMode
+  const { enablePushMode, disablePushMode } = useBoardStore((state) => ({
+    enablePushMode: state.enablePushMode,
+    disablePushMode: state.disablePushMode,
   }));
 
-  useEffect(() => {
-    console.log("ha cambiado el isSelected:");
-    console.log(isSelected);
-  }, [isSelected]);
+  const handlerBack = () => {
+    setActiveDynamicMenuItem(null);
+    resetSelection();
+    disablePushMode();
+    setSelectedBuild(null);
+  };
+
 
   useEffect(() => {
     const interval = setInterval(() => {
       let totalGoldProduced = 0;
-
+      console.log(goldMines);
+  
       goldMines.forEach((mine) => {
-        const properties = mine.properties as MinaDeOroProperties;
-        const currentTime = new Date();
-        const buildTime = new Date(properties.buildDate);
-        const timeElapsedInSeconds = (currentTime.getTime() - buildTime.getTime()) / 1000;
-        const timeToFullCapacityInSeconds = properties.timeToFullCapacity * 60;
-        let goldGenerated;
-
-        if (timeElapsedInSeconds >= timeToFullCapacityInSeconds) {
-          goldGenerated = properties.capacity; // Si el tiempo transcurrido supera el tiempo para capacidad máxima, está lleno
-        } else {
-          goldGenerated = properties.capacity * (timeElapsedInSeconds / timeToFullCapacityInSeconds);
+        if (mine.name === 'Mina de oro') { // Verificar si es una mina de oro
+          const properties = mine.properties as MinaDeOroProperties;
+          const { productionRate, capacity, currentGold } = properties;
+  
+          // Calcular el nuevo oro generado
+          let newGoldGenerated = currentGold + productionRate * (10 / 60); // Asumiendo productionRate es por hora y intervalos de 10 segundos
+  
+          // Asegurar que el oro generado no exceda la capacidad máxima de la mina
+          if (newGoldGenerated >= capacity) {
+            newGoldGenerated = capacity;
+            properties.isFull = true;
+          } else {
+            properties.isFull = false;
+          }
+  
+          totalGoldProduced += newGoldGenerated - currentGold; // Solo sumar la diferencia generada en este intervalo
+          properties.currentGold = newGoldGenerated; // Actualizar la propiedad currentGold en la mina
         }
-
-        // Asegurar que el oro generado no exceda la capacidad máxima de la mina
-        goldGenerated = Math.min(goldGenerated, properties.capacity);
-
-        totalGoldProduced += goldGenerated;
       });
-
+  
       // Calcular el nuevo valor de oro sin exceder la capacidad total
+      console.log(gold + totalGoldProduced, goldTotalCapacity)
       const newGold = Math.min(gold + totalGoldProduced, goldTotalCapacity);
-
-      updateResources(newGold, builders, heroes);
+  
+      updateResources(Math.ceil(newGold), builders, heroes);
     }, 10000); // Cada 10 segundos
-
+  
     return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
-  }, [goldMines, gold, goldTotalCapacity, updateResources, builders, heroes]);
+  }, [goldMines, gold, goldTotalCapacity, builders, heroes, updateResources]); 
 
   const monitorItems: MonitorItem[] = [
     { label: 'ORO', emoji: '💰', value: gold },
@@ -141,12 +145,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
 
         <button
           className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-1 rounded shadow-md"
-          onClick={() => {
-            setActiveDynamicMenuItem(null)
-            resetSelection();
-
-          }
-          }
+          onClick={() => handlerBack()}
         >
           Volver
         </button>
@@ -162,7 +161,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       content: (
         <div>
           <p>Contenido para estadísticas del héroe.</p>
-          <button onClick={() => setActiveDynamicMenuItem(null)}>Volver</button>
+          <button onClick={() => handlerBack()}>Volver</button>
         </div>
       ),
     },
@@ -172,7 +171,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       content: (
         <div>
           <p>Contenido para economía.</p>
-          <button onClick={() => setActiveDynamicMenuItem(null)}>Volver</button>
+          <button onClick={() => handlerBack()}>Volver</button>
         </div>
       ),
     },
@@ -184,6 +183,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     setActiveDynamicMenuItem(item);
   };
 
+ 
   const handleBuildingClick = (building: Character<BuildingProperties>) => {
     if (gold >= building.properties.cost) {
       console.log("setSelectedBuild(building);");
@@ -202,6 +202,9 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         {monitorItems.map((item, index) => (
           <div key={index} className="bg-brown-600 p-2 rounded">
             <span role="img" aria-label={item.label}>{item.emoji}</span> {item.label}: {item.value}
+            {
+              item.label === 'ORO' ? <>/{goldTotalCapacity}</> : ''
+            }
           </div>
         ))}
       </div>
@@ -273,7 +276,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
                 Retirar Fondos
               </button>
               <button
-                onClick={resetSelection}
+                onClick={() => handlerBack()}
+
                 className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md mt-2"
               >
                 Volver al Menú Principal
@@ -294,7 +298,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         return (
           <div>
             <p>Has seleccionado: {selectedCharacter.name}</p>
-            <button onClick={resetSelection}>
+            <button onClick={() => handlerBack()}>
               Volver al menú principal
             </button>
           </div>
@@ -305,7 +309,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       return (
         <div>
           <p>No has seleccionado nada</p>
-          <button onClick={resetSelection}>Volver al menú principal</button>
+          <button onClick={() => handlerBack()}>
+            Volver al menú principal</button>
         </div>
       );
     }

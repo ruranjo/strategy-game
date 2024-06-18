@@ -4,6 +4,7 @@ import { AlmacenDeOroProperties, BaseProperties, BuildingProperties, Character, 
 type GameState<T extends BaseProperties> = {
   gold: number;
   goldTotalCapacity: number; // Añadir propiedad para capacidad total de oro
+  intialGoldCapacity: number;
   builders: number;
   heroes: number;
   selectedCharacter: Character<T> | null;
@@ -27,6 +28,7 @@ const createGameState = <T extends BaseProperties>() => (
 ): GameState<T> => ({
   gold: 1000,
   goldTotalCapacity: 1000, // Inicializar la capacidad total de oro
+  intialGoldCapacity:1000,
   builders: 1,
   heroes: 0,
   selectedCharacter: null,
@@ -66,7 +68,7 @@ const createGameState = <T extends BaseProperties>() => (
   addGoldMine: (goldMine) =>
     set((state) => {
       const newGoldMines = [...state.goldMines, goldMine];
-      const goldTotalCapacity = newGoldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
+      const goldTotalCapacity = state.intialGoldCapacity + newGoldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
       return {
         ...state,
         goldMines: newGoldMines,
@@ -100,7 +102,7 @@ const createGameState = <T extends BaseProperties>() => (
 
   updateGoldTotalCapacity: () =>
     set((state) => {
-      const goldTotalCapacity = state.goldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
+      const goldTotalCapacity =  state.goldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
       return {
         ...state,
         goldTotalCapacity, // Actualizar la capacidad total de oro

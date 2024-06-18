@@ -11,5 +11,6 @@ export const Tree:Character<TreeProperties> = {
     properties:{
         age:1,
         height:1,
-    }
+    },
+    type: 'decoracion'
 }

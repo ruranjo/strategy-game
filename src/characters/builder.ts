@@ -10,5 +10,6 @@ export const Constructor: Character<BuilderProperties> = {
     description: 'Construye y mejora edificios',
     properties: {
       constructionSpeed: 1
-    }
+    },
+    type:"ser",
   };

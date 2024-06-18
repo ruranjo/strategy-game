@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useBoardStore from '../../../store/BoardStore';
 import useGameStore from '../../../store/GameStore';
-import { Character, BaseProperties } from '../../../types/character.type';
-import { Constructor } from '../../../characters/builder';
+import { Character, MinaDeOroProperties, AlmacenDeOroProperties } from '../../../types/character.type';
+
+
 
 type GameMapProps = {
   rows?: number;
   cols?: number;
 };
 
-const getRandomPosition = (rows: number, cols: number, boardMatrix: (Character<BaseProperties> | null)[][]): { row: number, col: number } => {
-  let position;
-  do {
-    const row = Math.floor(Math.random() * rows);
-    const col = Math.floor(Math.random() * cols);
-    if (!boardMatrix[row][col]) {
-      position = { row, col };
-    }
-  } while (!position);
-  return position;
-};
+
 
 const GameMap: React.FC<GameMapProps> = () => {
-  const { boardMatrix, isPushMode, setBoardMatrix, disablePushMode, rows, cols } = useBoardStore((state) => ({
+  const { boardMatrix, isPushMode, setBoardMatrix, disablePushMode } = useBoardStore((state) => ({
     boardMatrix: state.boardMatrix,
     rows: state.rows,
     cols: state.cols,
@@ -31,31 +22,22 @@ const GameMap: React.FC<GameMapProps> = () => {
     disablePushMode: state.disablePushMode,
   }));
 
-  const { selectedCharacter, isSelected, setSelectedBuild, setSelectedCharacter, selectedCell, setSelectedCell, selectedBuild, builders, gold, deductGold } = useGameStore((state) => ({
+  const { selectedCharacter, addGoldMine, setSelectedBuild, setSelectedCharacter, selectedCell, setSelectedCell, selectedBuild, deductGold } = useGameStore((state) => ({
     selectedCharacter: state.selectedCharacter,
-    isSelected: state.isSelected,
     setSelectedCharacter: state.setSelectedCharacter,
-    setSelectedBuild: state.setSelectedCharacter,
+    setSelectedBuild: state.setSelectedBuild,
     selectedBuild: state.selectedBuild,
     selectedCell: state.selectedCell,
     setSelectedCell: state.setSelectedCell,
     builders: state.builders,
     gold: state.gold,
+    addGoldMine: state.addGoldMine,
     deductGold: state.deductGold
   }));
 
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
 
-  useEffect(() => {
-    if (builders > 0) {
-      const newBoardMatrix = [...boardMatrix];
-      for (let i = 0; i < builders; i++) {
-        const position = getRandomPosition(rows, cols, newBoardMatrix);
-        newBoardMatrix[position.row][position.col] = Constructor;
-      }
-      setBoardMatrix(newBoardMatrix);
-    }
-  }, []);
+ 
 
   const getCellColor = (row: number, col: number): string => {
     let baseClass = '';
@@ -137,7 +119,10 @@ const GameMap: React.FC<GameMapProps> = () => {
     return false;
   };
 
-  const handleCellClick = (row: number, col: number) => {
+  
+
+   const handleCellClick = (row: number, col: number) => {
+    
     if (isAdjacentCellAvailable(row, col)) {
       if (isPushMode && selectedCharacter && selectedBuild) {
         if (boardMatrix[row][col] === null) {
@@ -162,6 +147,7 @@ const GameMap: React.FC<GameMapProps> = () => {
           disablePushMode();
           setSelectedCharacter(null);
           setSelectedBuild(null);
+          
           setSelectedCell(null);
 
           setHoveredCell(null);
@@ -169,22 +155,101 @@ const GameMap: React.FC<GameMapProps> = () => {
           // Descontar el oro al colocar el edificio
           if (selectedBuild && selectedBuild.properties) {
             deductGold(selectedBuild.properties.cost);
+
+            if (selectedBuild.name === 'Mina de oro') {
+              const minaDeOro: Character<MinaDeOroProperties> = {
+                ...selectedBuild,
+                x: row,
+                y: col,
+                properties: selectedBuild.properties as MinaDeOroProperties
+              };
+              addGoldMine(minaDeOro);
+            } else if (selectedBuild.name === 'Almacén de Oro') {
+              const almacenDeOro: Character<AlmacenDeOroProperties> = {
+                ...selectedBuild,
+                x: row,
+                y: col,
+                properties: selectedBuild.properties as AlmacenDeOroProperties
+              };
+              addGoldMine(almacenDeOro);
+            }
           }
-
-          
-
         } else {
           console.log("No es posible colocar en esta posición");
         }
       } else {
         const selected = boardMatrix[row][col];
+        
         setSelectedCharacter(selected);
         setSelectedCell({ row, col });
+        
       }
     } else {
       console.log("No es posible colocar en esta posición");
     }
   };
+
+  const handleCellClickTypeSer = (row: number, col: number) => {
+    // Verificar si tenemos un personaje de tipo "ser" seleccionado
+    
+    if (selectedCharacter && selectedCharacter.type === 'ser') {
+      // Verificar si la celda clickeada está vacía (o implementar otras lógicas según tu juego)
+      if (boardMatrix[row][col] === null) {
+        // Crear una copia actualizada del personaje con las nuevas coordenadas
+        const updatedCharacter = { ...selectedCharacter, x: row, y: col };
+  
+        // Crear una copia de la matriz del tablero
+        const newBoardMatrix = [...boardMatrix];
+  
+        // Limpiar la celda original donde estaba el personaje
+        newBoardMatrix[selectedCharacter.x][selectedCharacter.y] = null;
+  
+        // Mover el personaje a la nueva posición en la matriz del tablero
+        newBoardMatrix[row][col] = updatedCharacter;
+  
+        // Actualizar el estado del tablero con la nueva configuración
+        setBoardMatrix(newBoardMatrix);
+        setSelectedCharacter(updatedCharacter);
+  
+        // Limpiar selecciones y desactivar cualquier modo de colocación o movimiento
+        setSelectedCell(null);
+        setHoveredCell(null);
+        setSelectedBuild(null);
+        setSelectedCharacter(null);
+        disablePushMode();
+        
+  
+        // Otras actualizaciones de estado o lógica específica del juego
+      } else {
+        console.log("No es posible moverse a esta posición porque está ocupada");
+      }
+    } else {
+      console.log("No se puede mover el personaje seleccionado porque no es de tipo 'ser'");
+    }
+  };
+  
+
+  const handleCellClickWrapper = (rowIndex: number, colIndex: number) => {
+    const cell = boardMatrix[rowIndex][colIndex];
+    
+  
+     if (cell && (cell.type === 'edificio' || cell.type === 'ser')) {
+      console.log("pushMode 2:",isPushMode)
+      handleCellClick(rowIndex, colIndex);
+    
+    } else if (selectedCharacter?.type === 'ser' && !selectedBuild ) {
+     
+      handleCellClickTypeSer(rowIndex, colIndex);
+      if (selectedCharacter.role !== "builder") {
+        
+        setSelectedBuild(null);
+      }
+    } else {
+   
+      handleCellClick(rowIndex, colIndex);
+    }
+  };
+
 
   return (
     <div className="flex flex-col items-center border border-red-800">
@@ -196,7 +261,7 @@ const GameMap: React.FC<GameMapProps> = () => {
               className={`w-7 h-7 ${getCellColor(rowIndex, colIndex)} text-center cursor-pointer`}
               onMouseEnter={() => handleCellHover(rowIndex, colIndex)}
               onMouseLeave={() => setHoveredCell(null)}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
+              onClick={() => handleCellClickWrapper(rowIndex, colIndex)}
             >
               {cell?.imgCode}
             </div>
@@ -210,6 +275,7 @@ const GameMap: React.FC<GameMapProps> = () => {
       )}
     </div>
   );
+  
 };
 
 export default GameMap;

@@ -1,69 +1,71 @@
+// Base properties interface
 export interface BaseProperties {
-    // Common properties for all character types can go here if needed
-    
-  }
+  // Common properties for all character types can go here if needed
+}
 
-export interface TreeProperties extends BaseProperties {
-    height: number;
-    age: number;
-  }
-  
-  export interface BuildingProperties extends BaseProperties {
-    // Puedes agregar propiedades comunes a todos los edificios si es necesario
-    cost: number, 
-  }
+// Properties specific to heroes
+export interface HeroProperties extends BaseProperties {
+  health: number;
+  attackDamage: number;
+  specialAbility: string;
+}
 
-  export interface BarracaProperties extends BuildingProperties {
-    // Propiedades específicas de la Barraca
-    trainingCapacity: number;
-    troopType: string; // Tipo de tropa que entrena
-  }
+// Extend BuildingProperties to include resistance properties
+export interface BuildingProperties extends BaseProperties {
+  cost: number;
+  maxResistance: number;
+  currentResistance: number;
+}
 
+// Specific properties for different buildings
+export interface BarracaProperties extends BuildingProperties {
+  trainingCapacity: number;
+  troopType: string;
+}
 
 export interface MurallaProperties extends BuildingProperties {
-  // Propiedades específicas de la Muralla
   defenseStrength: number;
-  height: number; // Altura de la muralla en metros
+  height: number;
 }
 
 export interface MinaDeOroProperties extends BuildingProperties {
-  
-  cost: number;
-  productionRate: number; // Tasa de producción de oro por hora
-  capacity: number;       // Capacidad máxima de almacenamiento de oro
-  timeToFullCapacity: number; // Tiempo en minutos para alcanzar la capacidad máxima
-  buildDate: Date;        // Fecha y hora de construcción
-  isFull: boolean;        // Indicador de si la mina está llena
-  currentGold: number;    // Cantidad actual de oro almacenado
-  
+  productionRate: number;
+  capacity: number;
+  timeToFullCapacity: number;
+  buildDate: Date;
+  isFull: boolean;
+  currentGold: number;
 }
 
 export interface AyuntamientoProperties extends BuildingProperties {
-  // Propiedades específicas del Ayuntamiento
-  administrativeLevel: number; // Nivel administrativo del Ayuntamiento
-  publicServices: string[]; // Servicios públicos ofrecidos por el Ayuntamiento
+  administrativeLevel: number;
+  publicServices: string[];
 }
 
 export interface AlmacenDeOroProperties extends BuildingProperties {
-  // Propiedades específicas del Ayuntamiento
-  capacity: number
+  capacity: number;
+}
+
+// Specific properties for non-building characters
+export interface TreeProperties extends BaseProperties {
+  height: number;
+  age: number;
 }
 
 export interface BuilderProperties extends BaseProperties {
   constructionSpeed: number;
 }
 
-
-  
+// Character interface
 export interface Character<T extends BaseProperties> {
-    id:number;
-    name: string;
-    role: string;
-    imgCode:string;
-    x: number;
-    y: number;
-    description:string;
-    properties: T;
+  id: number;
+  name: string;
+  role: string;
+  imgCode: string;
+  x: number;
+  y: number;
+  description: string;
+  properties: T;
+  type: 'ser' | 'decoracion' | 'edificio'; // Campo de tipo para el personaje
 }
-
 
