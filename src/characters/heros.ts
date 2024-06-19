@@ -11,10 +11,13 @@ export const BarbarianKing: Character<HeroProperties> = {
     description: 'A powerful warrior hero with strong attacks.',
     properties: {
         health: 2000,
+        currentHealth: 2000,
         attackDamage: 150,
         specialAbility: 'Iron Fist',
     },
     type: 'ser', // Ejemplo de tipo para un héroe
+    bando: 'neutro',
+    OnAttack: false
 };
 
 export const ArcherQueen: Character<HeroProperties> = {
@@ -27,10 +30,13 @@ export const ArcherQueen: Character<HeroProperties> = {
     description: 'A ranged hero with deadly accuracy.',
     properties: {
         health: 1500,
+        currentHealth: 1500,
         attackDamage: 200,
         specialAbility: 'Royal Cloak',
     },
     type: 'ser', // Ejemplo de tipo para un héroe
+    bando: 'neutro',
+    OnAttack: false,
 };
 
 export const GrandWarden: Character<HeroProperties> = {
@@ -43,25 +49,37 @@ export const GrandWarden: Character<HeroProperties> = {
     description: 'A mystical hero who can protect troops.',
     properties: {
         health: 1800,
+        currentHealth: 1800,
         attackDamage: 100,
         specialAbility: 'Life Aura',
     },
     type: 'ser', // Ejemplo de tipo para un héroe
+    bando: 'neutro',
+    OnAttack: false,
 };
 
 // Definición del personaje Bárbaro
 export const Barbarian: Character<HeroProperties> = {
     id: 9,
     name: 'Bárbaro',
-    role: 'troop',
+    role: 'hero',
     imgCode: '🏌️‍♂️',
     x: 0,
     y: 0,
     description: 'Un poderoso guerrero cuerpo a cuerpo.',
     properties: {
-        health: 300,
+        health: 1000,
+        currentHealth: 1000,
         attackDamage: 50,
         specialAbility: '',
     },
     type: 'ser', // Tipo específico para una tropa
+    bando: 'neutro',
+    OnAttack: false,
 };
+
+/*
+health -> 100
+currentHealth-> x
+(currentHealth*100)/health =x
+*/

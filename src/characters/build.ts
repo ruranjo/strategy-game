@@ -15,7 +15,9 @@ export const Ayuntamiento: Character<AyuntamientoProperties> = {
       maxResistance: 1000,
       currentResistance: 1000,
   },
-  type: 'edificio'
+  type: 'edificio',
+  bando: 'neutro',
+  OnAttack: false,
 };
 
 export const Barraca: Character<BarracaProperties> = {
@@ -33,7 +35,9 @@ export const Barraca: Character<BarracaProperties> = {
       maxResistance: 800,
       currentResistance: 800,
   },
-  type: 'edificio'
+  type: 'edificio',
+  bando: 'neutro',
+  OnAttack: false,
 };
 
 export const Muralla: Character<MurallaProperties> = {
@@ -47,11 +51,13 @@ export const Muralla: Character<MurallaProperties> = {
   properties: {
       defenseStrength: 1,
       height: 1,
-      cost: 150,
+      cost: 80,
       maxResistance: 1200,
       currentResistance: 1200,
   },
-  type: 'edificio'
+  type: 'edificio',
+  bando: 'neutro',
+  OnAttack: false,
 };
 
 export const MinaDeOro: Character<MinaDeOroProperties> = {
@@ -73,7 +79,9 @@ export const MinaDeOro: Character<MinaDeOroProperties> = {
       maxResistance: 700,
       currentResistance: 700,
   },
-  type: 'edificio'
+  type: 'edificio',
+  bando: 'neutro',
+  OnAttack: false,
 };
 
 export const AlmacenDeOro: Character<AlmacenDeOroProperties> = {
@@ -90,5 +98,7 @@ export const AlmacenDeOro: Character<AlmacenDeOroProperties> = {
       maxResistance: 900,
       currentResistance: 900,
   },
-  type: 'edificio'
+  type: 'edificio',
+  bando: 'neutro',
+  OnAttack: false,
 };

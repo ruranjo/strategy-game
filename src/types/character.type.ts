@@ -1,11 +1,13 @@
 // Base properties interface
 export interface BaseProperties {
   // Common properties for all character types can go here if needed
+  
 }
 
 // Properties specific to heroes
 export interface HeroProperties extends BaseProperties {
   health: number;
+  currentHealth: number;
   attackDamage: number;
   specialAbility: string;
 }
@@ -56,6 +58,12 @@ export interface BuilderProperties extends BaseProperties {
   constructionSpeed: number;
 }
 
+// Specific properties for mountain characters
+export interface MountainProperties extends BaseProperties {
+  elevation: number;
+  prominence: number;
+}
+
 // Character interface
 export interface Character<T extends BaseProperties> {
   id: number;
@@ -66,6 +74,7 @@ export interface Character<T extends BaseProperties> {
   y: number;
   description: string;
   properties: T;
+  OnAttack: boolean;
   type: 'ser' | 'decoracion' | 'edificio'; // Campo de tipo para el personaje
+  bando: 'enemigo' | 'jugador' | 'neutro' ; // Campo de tipo para el personaje
 }
-

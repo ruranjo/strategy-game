@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import useBoardStore from '../../../store/BoardStore';
 import useGameStore from '../../../store/GameStore';
-import { Character, MinaDeOroProperties, AlmacenDeOroProperties } from '../../../types/character.type';
-
-
+import { Character, MinaDeOroProperties, AlmacenDeOroProperties, HeroProperties } from '../../../types/character.type';
 
 type GameMapProps = {
   rows?: number;
   cols?: number;
 };
-
-
 
 const GameMap: React.FC<GameMapProps> = () => {
   const { boardMatrix, isPushMode, setBoardMatrix, disablePushMode } = useBoardStore((state) => ({
@@ -32,14 +28,41 @@ const GameMap: React.FC<GameMapProps> = () => {
     builders: state.builders,
     gold: state.gold,
     addGoldMine: state.addGoldMine,
-    deductGold: state.deductGold
+    deductGold: state.deductGold,
   }));
 
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
 
- 
+  // Función para obtener el color según el porcentaje de salud
+  const getColorByHealthPercentage = (percentage: number): string => {
+    if (percentage > 80) return 'bg-red-500';
+    if (percentage > 60) return 'bg-red-600';
+    if (percentage > 40) return 'bg-red-700';
+    if (percentage > 20) return 'bg-red-800';
+    return 'bg-red-900';
+  };
 
   const getCellColor = (row: number, col: number): string => {
+    const cell = boardMatrix[row][col];
+    
+    if (cell?.bando === 'jugador') {
+      
+      return  'bg-blue-500';
+    }
+
+    if (cell?.bando === 'enemigo') {
+      console.log(cell)
+      const proper =  cell.properties as HeroProperties
+      const percentage = proper.currentHealth !== undefined && proper.health !== undefined
+        ? (proper.currentHealth / proper.health) * 100
+        : 100;
+      return getColorByHealthPercentage(percentage);
+    }
+
+    if (cell?.name === 'montain') {
+      return (row + col) % 2 === 0 ? 'bg-gray-300' : 'bg-gray-400';
+    }
+
     let baseClass = '';
 
     if (hoveredCell && hoveredCell.row === row && hoveredCell.col === col) {
@@ -119,15 +142,53 @@ const GameMap: React.FC<GameMapProps> = () => {
     return false;
   };
 
-  
+  const startAttack = (targetCell: { row: number; col: number }, damage: number) => {
+    const intervalId = setInterval(() => {
+      const { row, col } = targetCell;
+      const enemy = boardMatrix[row][col];
 
-   const handleCellClick = (row: number, col: number) => {
-    
-    if (isAdjacentCellAvailable(row, col)) {
+      if (enemy) {
+        const proper =  enemy.properties as HeroProperties
+        proper.currentHealth -= damage;
+
+        if (proper.currentHealth <= 0) {
+          clearInterval(intervalId);
+          const newBoardMatrix = [...boardMatrix];
+          newBoardMatrix[row][col] = null;
+          setBoardMatrix(newBoardMatrix);
+        } else {
+          const newBoardMatrix = [...boardMatrix];
+          newBoardMatrix[row][col] = { ...enemy };
+          setBoardMatrix(newBoardMatrix);
+        }
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+  };
+
+  const handleCellClick = (row: number, col: number) => {
+    if (selectedCharacter && selectedCharacter.bando === 'jugador' && selectedCharacter.role === 'hero' && boardMatrix[row][col]?.bando === 'enemigo') {
+      const adjacentCell = findAdjacentAvailableCell(row, col);
+      const auxCharacter = selectedCharacter;
+      if (adjacentCell) {
+        const newBoardMatrix = [...boardMatrix];
+        newBoardMatrix[selectedCharacter.x][selectedCharacter.y] = null;
+        newBoardMatrix[adjacentCell.newRow][adjacentCell.newCol] = { ...selectedCharacter, x: adjacentCell.newRow, y: adjacentCell.newCol };
+
+        setBoardMatrix(newBoardMatrix);
+        setSelectedCharacter(null);
+        setSelectedCell(null);
+
+        // Iniciar 
+        const proper =  auxCharacter.properties as HeroProperties
+        startAttack({ row, col }, proper.attackDamage);
+      }
+    } else if (isAdjacentCellAvailable(row, col)) {
       if (isPushMode && selectedCharacter && selectedBuild) {
         if (boardMatrix[row][col] === null) {
           const newBoardMatrix = [...boardMatrix];
-          newBoardMatrix[row][col] = { ...selectedBuild, x: row, y: col };
+          newBoardMatrix[row][col] = { ...selectedBuild, x: row, y: col, bando: selectedCharacter.bando };
 
           const adjacentCell = findAdjacentAvailableCell(row, col);
           if (adjacentCell) {
@@ -147,12 +208,11 @@ const GameMap: React.FC<GameMapProps> = () => {
           disablePushMode();
           setSelectedCharacter(null);
           setSelectedBuild(null);
-          
+
           setSelectedCell(null);
 
           setHoveredCell(null);
 
-          // Descontar el oro al colocar el edificio
           if (selectedBuild && selectedBuild.properties) {
             deductGold(selectedBuild.properties.cost);
 
@@ -161,7 +221,8 @@ const GameMap: React.FC<GameMapProps> = () => {
                 ...selectedBuild,
                 x: row,
                 y: col,
-                properties: selectedBuild.properties as MinaDeOroProperties
+                properties: selectedBuild.properties as MinaDeOroProperties,
+                bando: selectedCharacter.bando
               };
               addGoldMine(minaDeOro);
             } else if (selectedBuild.name === 'Almacén de Oro') {
@@ -169,7 +230,8 @@ const GameMap: React.FC<GameMapProps> = () => {
                 ...selectedBuild,
                 x: row,
                 y: col,
-                properties: selectedBuild.properties as AlmacenDeOroProperties
+                properties: selectedBuild.properties as AlmacenDeOroProperties,
+                bando: selectedCharacter.bando
               };
               addGoldMine(almacenDeOro);
             }
@@ -179,10 +241,10 @@ const GameMap: React.FC<GameMapProps> = () => {
         }
       } else {
         const selected = boardMatrix[row][col];
-        
+
         setSelectedCharacter(selected);
         setSelectedCell({ row, col });
-        
+
       }
     } else {
       console.log("No es posible colocar en esta posición");
@@ -190,36 +252,19 @@ const GameMap: React.FC<GameMapProps> = () => {
   };
 
   const handleCellClickTypeSer = (row: number, col: number) => {
-    // Verificar si tenemos un personaje de tipo "ser" seleccionado
-    
     if (selectedCharacter && selectedCharacter.type === 'ser') {
-      // Verificar si la celda clickeada está vacía (o implementar otras lógicas según tu juego)
       if (boardMatrix[row][col] === null) {
-        // Crear una copia actualizada del personaje con las nuevas coordenadas
         const updatedCharacter = { ...selectedCharacter, x: row, y: col };
-  
-        // Crear una copia de la matriz del tablero
         const newBoardMatrix = [...boardMatrix];
-  
-        // Limpiar la celda original donde estaba el personaje
         newBoardMatrix[selectedCharacter.x][selectedCharacter.y] = null;
-  
-        // Mover el personaje a la nueva posición en la matriz del tablero
         newBoardMatrix[row][col] = updatedCharacter;
-  
-        // Actualizar el estado del tablero con la nueva configuración
         setBoardMatrix(newBoardMatrix);
         setSelectedCharacter(updatedCharacter);
-  
-        // Limpiar selecciones y desactivar cualquier modo de colocación o movimiento
         setSelectedCell(null);
         setHoveredCell(null);
         setSelectedBuild(null);
         setSelectedCharacter(null);
         disablePushMode();
-        
-  
-        // Otras actualizaciones de estado o lógica específica del juego
       } else {
         console.log("No es posible moverse a esta posición porque está ocupada");
       }
@@ -227,29 +272,21 @@ const GameMap: React.FC<GameMapProps> = () => {
       console.log("No se puede mover el personaje seleccionado porque no es de tipo 'ser'");
     }
   };
-  
 
   const handleCellClickWrapper = (rowIndex: number, colIndex: number) => {
     const cell = boardMatrix[rowIndex][colIndex];
-    
-  
-     if (cell && (cell.type === 'edificio' || cell.type === 'ser')) {
-      console.log("pushMode 2:",isPushMode)
+
+    if (cell && (cell.type === 'edificio' || cell.type === 'ser')) {
       handleCellClick(rowIndex, colIndex);
-    
-    } else if (selectedCharacter?.type === 'ser' && !selectedBuild ) {
-     
+    } else if (selectedCharacter?.type === 'ser' && !selectedBuild) {
       handleCellClickTypeSer(rowIndex, colIndex);
       if (selectedCharacter.role !== "builder") {
-        
         setSelectedBuild(null);
       }
     } else {
-   
       handleCellClick(rowIndex, colIndex);
     }
   };
-
 
   return (
     <div className="flex flex-col items-center border border-red-800">
@@ -258,7 +295,7 @@ const GameMap: React.FC<GameMapProps> = () => {
           {row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`w-7 h-7 ${getCellColor(rowIndex, colIndex)} text-center cursor-pointer`}
+              className={`w-7 h-7 ${getCellColor(rowIndex, colIndex)} text-center items-center flex justify-center cursor-pointer`}
               onMouseEnter={() => handleCellHover(rowIndex, colIndex)}
               onMouseLeave={() => setHoveredCell(null)}
               onClick={() => handleCellClickWrapper(rowIndex, colIndex)}
@@ -275,7 +312,6 @@ const GameMap: React.FC<GameMapProps> = () => {
       )}
     </div>
   );
-  
 };
 
 export default GameMap;

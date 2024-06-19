@@ -12,4 +12,6 @@ export const Constructor: Character<BuilderProperties> = {
       constructionSpeed: 1
     },
     type:"ser",
+    OnAttack: false,
+    bando:"neutro"
   };

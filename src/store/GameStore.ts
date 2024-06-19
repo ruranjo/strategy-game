@@ -12,6 +12,7 @@ type GameState<T extends BaseProperties> = {
   isSelected: boolean;
   selectedCell: { row: number; col: number } | null;
   goldMines: Character<MinaDeOroProperties | AlmacenDeOroProperties>[]; // Array para guardar las minas de oro
+  attackMode: boolean; // Añadir modo de ataque
   updateResources: (gold: number, builders: number, heroes: number) => void;
   setSelectedCharacter: (character: Character<T> | null) => void;
   setSelectedBuild: (character: Character<BuildingProperties> | null) => void;
@@ -19,6 +20,7 @@ type GameState<T extends BaseProperties> = {
   addGoldMine: (goldMine: Character<MinaDeOroProperties | AlmacenDeOroProperties>) => void;
   removeGoldMine: (id: number) => void;
   resetSelection: () => void;
+  toggleAttackMode: () => void; // Añadir función para alternar el modo de ataque
   deductGold: (amount: number) => void; // Función para deducir oro
   updateGoldTotalCapacity: () => void; // Función para actualizar la capacidad total de oro
 };
@@ -28,7 +30,7 @@ const createGameState = <T extends BaseProperties>() => (
 ): GameState<T> => ({
   gold: 1000,
   goldTotalCapacity: 1000, // Inicializar la capacidad total de oro
-  intialGoldCapacity:1000,
+  intialGoldCapacity: 1000,
   builders: 1,
   heroes: 0,
   selectedCharacter: null,
@@ -36,6 +38,7 @@ const createGameState = <T extends BaseProperties>() => (
   isSelected: false,
   selectedCell: null,
   goldMines: [], // Inicializar el array de minas de oro
+  attackMode: false, // Inicializar el modo de ataque
 
   updateResources: (gold, builders, heroes) =>
     set((state) => ({
@@ -94,6 +97,12 @@ const createGameState = <T extends BaseProperties>() => (
       isSelected: false,
     })),
 
+  toggleAttackMode: () =>
+    set((state) => ({
+      ...state,
+      attackMode: !state.attackMode,
+    })),
+
   deductGold: (amount) =>
     set((state) => ({
       ...state,
@@ -102,7 +111,7 @@ const createGameState = <T extends BaseProperties>() => (
 
   updateGoldTotalCapacity: () =>
     set((state) => {
-      const goldTotalCapacity =  state.goldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
+      const goldTotalCapacity = state.goldMines.reduce((total, mine) => total + mine.properties.capacity, 0);
       return {
         ...state,
         goldTotalCapacity, // Actualizar la capacidad total de oro
