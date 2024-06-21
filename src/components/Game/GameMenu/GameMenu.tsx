@@ -129,10 +129,11 @@ const GameMenu: React.FC<GameMenuProps> = () => {
           >
             {AlmacenDeOro.imgCode} {AlmacenDeOro.name} costo: {AlmacenDeOro.properties.cost}
           </button>
+
           <button
             className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${(gold < AlmacenDeOro.properties.cost &&  selectedCharacter?.bando === 'jugador')  ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => handleBuildingClick(Barraca)}
-            disabled={gold < Barraca.properties.cost && selectedCharacter?.bando!== 'enemigo'}
+            disabled={ selectedCharacter?.bando!== 'enemigo'}
           >
             {Barraca.imgCode} {Barraca.name} costo: {Barraca.properties.cost}
           </button>
