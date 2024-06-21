@@ -104,7 +104,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       const newGold = Math.min(gold + totalGoldProduced, goldTotalCapacity);
 
       updateResources(Math.ceil(newGold), builders, heroes);
-    }, 10000); // Cada 10 segundos
+    }, 1000); // Cada 10 segundos
 
     return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
   }, [goldMines, gold, goldTotalCapacity, builders, heroes, updateResources]);
@@ -129,50 +129,36 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         <div className="grid grid-cols-2 gap-1">
           <button
             className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${
-              gold < AlmacenDeOro.properties.cost &&
-              selectedCharacter?.bando === "jugador"
+              gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando === "jugador"
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
             onClick={() => handleBuildingClick(AlmacenDeOro)}
-            disabled={
-              gold < AlmacenDeOro.properties.cost &&
-              selectedCharacter?.bando !== "enemigo"
-            }
+            disabled={gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando !== "enemigo"}
           >
-            {AlmacenDeOro.imgCode} {AlmacenDeOro.name} costo:{" "}
-            {AlmacenDeOro.properties.cost}
+            {AlmacenDeOro.imgCode} {AlmacenDeOro.name} costo: {AlmacenDeOro.properties.cost}
           </button>
           <button
             className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${
-              gold < AlmacenDeOro.properties.cost &&
-              selectedCharacter?.bando === "jugador"
+              gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando === "jugador"
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
             onClick={() => handleBuildingClick(Muralla)}
-            disabled={
-              gold < Muralla.properties.cost &&
-              selectedCharacter?.bando !== "enemigo"
-            }
+            disabled={gold < Muralla.properties.cost && selectedCharacter?.bando !== "enemigo"}
           >
             {Muralla.imgCode} {Muralla.name} costo: {Muralla.properties.cost}
           </button>
           <button
             className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${
-              gold < AlmacenDeOro.properties.cost &&
-              selectedCharacter?.bando === "jugador"
+              gold < MinaDeOro.properties.cost && selectedCharacter?.bando === "jugador"
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
             onClick={() => handleBuildingClick(MinaDeOro)}
-            disabled={
-              gold < MinaDeOro.properties.cost &&
-              selectedCharacter?.bando !== "enemigo"
-            }
+            disabled={gold < MinaDeOro.properties.cost && selectedCharacter?.bando !== "enemigo"}
           >
-            {MinaDeOro.imgCode} {MinaDeOro.name} costo:{" "}
-            {MinaDeOro.properties.cost}
+            {MinaDeOro.imgCode} {MinaDeOro.name} costo: {MinaDeOro.properties.cost}
           </button>
         </div>
 
@@ -209,8 +195,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     },
   ];
 
-  const [activeDynamicMenuItem, setActiveDynamicMenuItem] =
-    useState<DynamicMenuItem | null>(null);
+  const [activeDynamicMenuItem, setActiveDynamicMenuItem] = useState<DynamicMenuItem | null>(null);
 
   const handleDynamicMenuItemClick = (item: DynamicMenuItem) => {
     setActiveDynamicMenuItem(item);
@@ -223,10 +208,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       " selectedCharacter?.bando === 'enemigo'",
       selectedCharacter?.bando === "enemigo"
     );
-    if (
-      gold >= building.properties.cost ||
-      selectedCharacter?.bando === "enemigo"
-    ) {
+    if (gold >= building.properties.cost || selectedCharacter?.bando === "enemigo") {
       console.log("setSelectedBuild(building);");
       console.log(building);
       setSelectedBuild(building);
@@ -256,19 +238,13 @@ const GameMenu: React.FC<GameMenuProps> = () => {
   const renderCentralMenuContent = () => {
     if (isSelected && selectedCharacter) {
       if (selectedCharacter.name === "Mina de oro") {
-        const {
-          currentGold,
-          productionRate,
-          capacity,
-          timeToFullCapacity,
-          buildDate,
-        } = selectedCharacter.properties as MinaDeOroProperties;
+        const { currentGold, productionRate, capacity, timeToFullCapacity, buildDate } =
+          selectedCharacter.properties as MinaDeOroProperties;
 
         // Calcular el tiempo transcurrido en segundos desde la fecha de construcción hasta la fecha actual
         const currentTime = new Date();
         const buildTime = new Date(buildDate);
-        const timeElapsedInSeconds =
-          (currentTime.getTime() - buildTime.getTime()) / 1000;
+        const timeElapsedInSeconds = (currentTime.getTime() - buildTime.getTime()) / 1000;
 
         // Convertir timeToFullCapacity a segundos
         const timeToFullCapacityInSeconds = timeToFullCapacity * 60;
@@ -285,8 +261,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         if (timeElapsedInSeconds >= timeToFullCapacityInSeconds) {
           goldGenerated = capacity; // Si el tiempo transcurrido supera el tiempo para capacidad máxima, está lleno
         } else {
-          goldGenerated =
-            capacity * (timeElapsedInSeconds / timeToFullCapacityInSeconds);
+          goldGenerated = capacity * (timeElapsedInSeconds / timeToFullCapacityInSeconds);
         }
 
         // Asegurar que el oro generado no exceda la capacidad máxima
@@ -347,10 +322,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
             {buildingMenu.content}
           </div>
         );
-      } else if (
-        selectedCharacter.role === "hero" &&
-        selectedCharacter.bando !== "enemigo"
-      ) {
+      } else if (selectedCharacter.role === "hero" && selectedCharacter.bando !== "enemigo") {
         const { currentHealth, health, attackDamage } =
           selectedCharacter.properties as HeroProperties;
 
@@ -391,9 +363,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
             <button
               onClick={handleBuyPotion}
               className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-white p-2 rounded shadow-md ${
-                gold < 50 || currentHealth === health
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
+                gold < 50 || currentHealth === health ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={gold < 50 || currentHealth === health}
             >
@@ -467,9 +437,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         return (
           <div>
             <p>Has seleccionado: {selectedCharacter.name}</p>
-            <button onClick={() => handlerBack()}>
-              Volver al menú principal
-            </button>
+            <button onClick={() => handlerBack()}>Volver al menú principal</button>
           </div>
         );
       }
@@ -478,9 +446,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       return (
         <div>
           <p>No has seleccionado nada</p>
-          <button onClick={() => handlerBack()}>
-            Volver al menú principal
-          </button>
+          <button onClick={() => handlerBack()}>Volver al menú principal</button>
         </div>
       );
     }
