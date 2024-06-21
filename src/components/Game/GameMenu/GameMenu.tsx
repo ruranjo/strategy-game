@@ -115,11 +115,6 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     { label: "HEROES", emoji: "⚔️", value: heroes },
   ];
 
-  const staticMenuItems: { label: string; emoji: string }[] = [
-    { label: "OPCIONES", emoji: "⚙️" },
-    { label: "TERMINAR", emoji: "🏁" },
-    { label: "GUARDAR", emoji: "💾" },
-  ];
 
   const buildingMenu: DynamicMenuItem = {
     label: "CREAR EDIFICIOS",
@@ -172,34 +167,9 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     ),
   };
 
-  const dynamicMenuItems: DynamicMenuItem[] = [
-    {
-      label: "ESTADÍSTICAS DEL HÉROE",
-      emoji: "📊",
-      content: (
-        <div>
-          <p>Contenido para estadísticas del héroe.</p>
-          <button onClick={() => handlerBack()}>Volver</button>
-        </div>
-      ),
-    },
-    {
-      label: "ECONOMÍA",
-      emoji: "⚖️",
-      content: (
-        <div>
-          <p>Contenido para economía.</p>
-          <button onClick={() => handlerBack()}>Volver</button>
-        </div>
-      ),
-    },
-  ];
 
   const [activeDynamicMenuItem, setActiveDynamicMenuItem] = useState<DynamicMenuItem | null>(null);
 
-  const handleDynamicMenuItemClick = (item: DynamicMenuItem) => {
-    setActiveDynamicMenuItem(item);
-  };
 
   const handleBuildingClick = (building: Character<BuildingProperties>) => {
     console.log(
@@ -378,58 +348,12 @@ const GameMenu: React.FC<GameMenuProps> = () => {
           </div>
         );
       } else if (selectedCharacter.name === "Ayuntamiento") {
-        const handleRecoverHero = () => {
-          if (gold >= 30) {
-            // Implement logic to recover hero for the town hall
-            alert("Héroe recuperado en el ayuntamiento.");
-            updateResources(gold - 30, builders, heroes);
-          } else {
-            alert("No tienes suficiente oro para recuperar el héroe.");
-          }
-        };
-
-        const handleRecoverBuilder = () => {
-          if (gold >= 40) {
-            // Implement logic to recover builder for the town hall
-            alert("Constructor recuperado en el ayuntamiento.");
-            updateResources(gold - 40, builders, heroes);
-          } else {
-            alert("No tienes suficiente oro para recuperar el constructor.");
-          }
-        };
+   
 
         // Menú para el ayuntamiento
         return (
           <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
-            <div className="bg-orange-700 p-2 rounded shadow-inner">
-              <p className="text-center text-sm">Opciones del Ayuntamiento:</p>
-              <div className="grid grid-cols-2 gap-1">
-                <button
-                  onClick={handleRecoverHero}
-                  className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md ${
-                    gold < 30 ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={gold < 30}
-                >
-                  🛡️ Recuperar Héroe (30 oro)
-                </button>
-                <button
-                  onClick={handleRecoverBuilder}
-                  className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md ${
-                    gold < 40 ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={gold < 40}
-                >
-                  🏗️ Recuperar Constructor (40 oro)
-                </button>
-                <button
-                  onClick={() => handlerBack()}
-                  className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md"
-                >
-                  Volver al Menú Principal
-                </button>
-              </div>
-            </div>
+            <div className="bg-orange-700 p-2 rounded shadow-inner"></div>
           </div>
         );
       } else {
@@ -471,17 +395,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
                   {activeDynamicMenuItem.content}
                 </div>
               ) : (
-                <div className="flex flex-col bg-orange-800 rounded-md text-green-950 font-bold gap-1">
-                  {dynamicMenuItems.map((item, index) => (
-                    <button
-                      key={index}
-                      className="bg-orange-300 p-2 rounded hover:bg-orange-400 focus:bg-orange-400 shadow-md"
-                      onClick={() => handleDynamicMenuItemClick(item)}
-                    >
-                      {item.emoji} {item.label}
-                    </button>
-                  ))}
-                </div>
+                <div className="flex flex-col bg-orange-800 rounded-md text-green-950 font-bold gap-1"></div>
               )}
             </div>
           )}
