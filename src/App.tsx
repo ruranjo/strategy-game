@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { GameMap, GameMenu } from './components/Game';
 import { BaseProperties, Character, TreeProperties, MountainProperties } from './types/character.type';
-
-import { Ayuntamiento } from './characters/build'; // Asegúrate de importar el Ayuntamiento
+import { Ayuntamiento, Muralla } from './characters/build'; // Asegúrate de importar el Ayuntamiento y la Muralla
 import useBoardStore from './store/BoardStore';
 import { Barbarian } from './characters/heros';
 import useGameStore from './store/GameStore';
@@ -65,10 +64,15 @@ const App = () => {
     const auxAyuntamiento = JSON.parse(JSON.stringify(Ayuntamiento));
     aux[centerRow][centerCol] = { ...auxAyuntamiento, x: centerRow, y: centerCol, bando: 'jugador' };
 
-    // Colocar al Bárbaro en una posición aleatoria en la parte izquierda
-    const { row: barbarianRow, col: barbarianCol } = getRandomPosition(initialRows, initialCols, aux, 0, middleCol);
-    const auxBarbarian= JSON.parse(JSON.stringify(Barbarian));
-    aux[barbarianRow][barbarianCol] = { ...auxBarbarian, x: barbarianRow, y: barbarianCol, bando: 'jugador' };
+    // Colocar al primer Bárbaro en una posición aleatoria en la parte izquierda
+    const { row: barbarianRow1, col: barbarianCol1 } = getRandomPosition(initialRows, initialCols, aux, 0, middleCol);
+    const auxBarbarian1 = JSON.parse(JSON.stringify(Barbarian));
+    aux[barbarianRow1][barbarianCol1] = { ...auxBarbarian1, x: barbarianRow1, y: barbarianCol1, bando: 'jugador' };
+
+    // Colocar al segundo Bárbaro en una posición aleatoria en la parte izquierda
+    const { row: barbarianRow2, col: barbarianCol2 } = getRandomPosition(initialRows, initialCols, aux, 0, middleCol);
+    const auxBarbarian2 = JSON.parse(JSON.stringify(Barbarian));
+    aux[barbarianRow2][barbarianCol2] = { ...auxBarbarian2, x: barbarianRow2, y: barbarianCol2, bando: 'jugador' };
 
     // Colocar Constructores en posiciones aleatorias no ocupadas en la parte izquierda
     for (let i = 0; i < builders; i++) {
@@ -79,7 +83,7 @@ const App = () => {
 
     // Colocar 10 arañas en posiciones aleatorias en la parte izquierda
     for (let i = 0; i < 10; i++) {
-      const { row, col } = getRandomPosition(initialRows, initialCols, aux, 0, middleCol);
+      const { row, col } = getRandomPosition(initialRows, initialCols, aux, middleCol );
       const auxSpider = JSON.parse(JSON.stringify(Spider));
       aux[row][col] = {
         ...auxSpider,
@@ -90,17 +94,31 @@ const App = () => {
 
     // Colocar el Ayuntamiento enemigo en el centro de la parte derecha
     const enemyCenterCol = Math.floor((3 * initialCols) / 4);
-    const auxEnemyAyuntamiento= JSON.parse(JSON.stringify(Ayuntamiento));
+    const auxEnemyAyuntamiento = JSON.parse(JSON.stringify(Ayuntamiento));
     aux[centerRow][enemyCenterCol] = { ...auxEnemyAyuntamiento, x: centerRow, y: enemyCenterCol, bando: 'enemigo' };
+
+    // Crear una muralla alrededor del Ayuntamiento enemigo en un cuadrado de 7x7
+    for (let i = -3; i <= 3; i++) {
+      for (let j = -3; j <= 3; j++) {
+        if (i === -3 || i === 3 || j === -3 || j === 3) { // Sólo las posiciones en el borde del cuadrado
+          const murallaRow = centerRow + i;
+          const murallaCol = enemyCenterCol + j;
+          if (murallaRow >= 0 && murallaRow < initialRows && murallaCol >= 0 && murallaCol < initialCols) {
+            const auxMuralla = JSON.parse(JSON.stringify(Muralla));
+            aux[murallaRow][murallaCol] = { ...auxMuralla, x: murallaRow, y: murallaCol, bando: 'enemigo' };
+          }
+        }
+      }
+    }
 
     // Colocar al héroe enemigo en una posición aleatoria en la parte derecha
     const { row: enemyHeroRow, col: enemyHeroCol } = getRandomPosition(initialRows, initialCols, aux, middleCol, initialCols);
-    const auxEnemyBarbarian= JSON.parse(JSON.stringify(Barbarian));
+    const auxEnemyBarbarian = JSON.parse(JSON.stringify(Barbarian));
     aux[enemyHeroRow][enemyHeroCol] = { ...auxEnemyBarbarian, x: enemyHeroRow, y: enemyHeroCol, bando: 'enemigo' };
 
     // Colocar un Constructor enemigo en una posición aleatoria en la parte derecha
     const { row: enemyBuilderRow, col: enemyBuilderCol } = getRandomPosition(initialRows, initialCols, aux, middleCol, initialCols);
-    const auxEnemyConstructor= JSON.parse(JSON.stringify(Constructor));
+    const auxEnemyConstructor = JSON.parse(JSON.stringify(Constructor));
     aux[enemyBuilderRow][enemyBuilderCol] = { ...auxEnemyConstructor, x: enemyBuilderRow, y: enemyBuilderCol, bando: 'enemigo' };
 
     setBoardMatrix(aux);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useGameStore from '../../../store/GameStore';
-import { BuildingProperties, Character, MinaDeOroProperties } from '../../../types/character.type';
+import { BuildingProperties, Character, HeroProperties, MinaDeOroProperties } from '../../../types/character.type';
 import { AlmacenDeOro, Barraca, MinaDeOro, Muralla } from '../../../characters/build';
 import useBoardStore from '../../../store/BoardStore';
 
@@ -30,6 +30,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     resetSelection,
     goldMines,
     updateResources,
+    setSelectedCharacter
   } = useGameStore((state) => ({
     gold: state.gold,
     goldTotalCapacity: state.goldTotalCapacity,
@@ -49,6 +50,15 @@ const GameMenu: React.FC<GameMenuProps> = () => {
   const { enablePushMode, disablePushMode } = useBoardStore((state) => ({
     enablePushMode: state.enablePushMode,
     disablePushMode: state.disablePushMode,
+    
+  }));
+
+  const { boardMatrix, setBoardMatrix } = useBoardStore((state) => ({
+    boardMatrix: state.boardMatrix,
+    rows: state.rows,
+    cols: state.cols,
+    isPushMode: state.isPushMode,
+    setBoardMatrix: state.setBoardMatrix,
   }));
 
   const handlerBack = () => {
@@ -57,7 +67,6 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     disablePushMode();
     setSelectedBuild(null);
   };
-
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -111,40 +120,40 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     label: 'CREAR EDIFICIOS',
     emoji: '🏠',
     content: (
-      <div className="bg-orange-800 rounded-md text-green-900 font-bold ">
+      <div className="bg-orange-800 rounded-md text-white font-bold ">
         <div className="grid grid-cols-2 gap-1">
           <button
-            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md flex items-center justify-center ${gold < AlmacenDeOro.properties.cost ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${(gold < AlmacenDeOro.properties.cost &&  selectedCharacter?.bando === 'jugador')  ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => handleBuildingClick(AlmacenDeOro)}
-            disabled={gold < AlmacenDeOro.properties.cost}
+            disabled={gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando!== 'enemigo'}
           >
             {AlmacenDeOro.imgCode} {AlmacenDeOro.name} costo: {AlmacenDeOro.properties.cost}
           </button>
           <button
-            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md flex items-center justify-center ${gold < Barraca.properties.cost ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${(gold < AlmacenDeOro.properties.cost &&  selectedCharacter?.bando === 'jugador')  ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => handleBuildingClick(Barraca)}
-            disabled={gold < Barraca.properties.cost}
+            disabled={gold < Barraca.properties.cost && selectedCharacter?.bando!== 'enemigo'}
           >
             {Barraca.imgCode} {Barraca.name} costo: {Barraca.properties.cost}
           </button>
           <button
-            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md flex items-center justify-center ${gold < Muralla.properties.cost ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${(gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando === 'jugador')  ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => handleBuildingClick(Muralla)}
-            disabled={gold < Muralla.properties.cost}
+            disabled={gold < Muralla.properties.cost && selectedCharacter?.bando!== 'enemigo'}
           >
             {Muralla.imgCode} {Muralla.name} costo: {Muralla.properties.cost}
           </button>
           <button
-            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md flex items-center justify-center ${gold < MinaDeOro.properties.cost ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${(gold < AlmacenDeOro.properties.cost && selectedCharacter?.bando === 'jugador')  ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => handleBuildingClick(MinaDeOro)}
-            disabled={gold < MinaDeOro.properties.cost}
+            disabled={gold < MinaDeOro.properties.cost && selectedCharacter?.bando!== 'enemigo'}
           >
             {MinaDeOro.imgCode} {MinaDeOro.name} costo: {MinaDeOro.properties.cost}
           </button>
         </div>
 
         <button
-          className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-1 rounded shadow-md"
+          className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-1 rounded shadow-md"
           onClick={() => handlerBack()}
         >
           Volver
@@ -185,7 +194,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
 
  
   const handleBuildingClick = (building: Character<BuildingProperties>) => {
-    if (gold >= building.properties.cost) {
+    console.log("gold >= building.properties.cost : ",gold >= building.properties.cost," selectedCharacter?.bando === 'enemigo'", selectedCharacter?.bando === 'enemigo')
+    if (gold >= building.properties.cost || selectedCharacter?.bando === 'enemigo') {
       console.log("setSelectedBuild(building);");
       console.log(building);
       setSelectedBuild(building);
@@ -237,7 +247,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         goldGenerated = Math.min(goldGenerated, capacity);
 
         return (
-          <div className="flex flex-col md:flex-row bg-orange-800 rounded-md text-green-300 font-bold gap-4 p-4 shadow-lg">
+          <div className="flex flex-col md:flex-row bg-orange-800 rounded-md text-white font-bold gap-4 p-4 shadow-lg">
             <div className="w-full md:w-1/2">
               <p className="text-center text-sm">Detalles de la Mina de Oro:</p>
               <div className="bg-orange-700 text-sm rounded-md shadow-inner">
@@ -271,14 +281,14 @@ const GameMenu: React.FC<GameMenuProps> = () => {
                   console.log('Retirar fondos de la Mina de Oro');
                   // Puedes realizar acciones adicionales aquí, como actualizar el estado del juego
                 }}
-                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md mt-2 md:mt-0"
+                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md mt-2 md:mt-0"
               >
                 Retirar Fondos
               </button>
               <button
                 onClick={() => handlerBack()}
 
-                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-900 p-2 rounded shadow-md mt-2"
+                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md mt-2"
               >
                 Volver al Menú Principal
               </button>
@@ -289,12 +299,134 @@ const GameMenu: React.FC<GameMenuProps> = () => {
       } else if (selectedCharacter.role === 'builder') {
         // Menú para el constructor
         return (
-          <div className="flex flex-col bg-orange-800 rounded-md text-green-900 font-bold gap-1">
+          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
             {buildingMenu.content}
           </div>
         );
+      }else if (selectedCharacter.role === 'hero' && selectedCharacter.bando !== 'enemigo') {
+        const { currentHealth, health, attackDamage } = selectedCharacter.properties as HeroProperties;
+      
+        const handleBuyPotion = () => {
+          if (gold >= 50) {
+            const newGold = gold - 50;
+            const updatedHero = {
+              ...selectedCharacter,
+              properties: {
+                ...selectedCharacter.properties,
+                currentHealth: health,
+              }
+            };
+            updateResources(newGold, builders, heroes);
+            setSelectedCharacter(updatedHero);
+            boardMatrix[updatedHero.x][updatedHero.y] = updatedHero;
+            setBoardMatrix(boardMatrix);
+          } else {
+            alert('No tienes suficiente oro para comprar una poción de vida.');
+          }
+        };
+      
+        // Menú para el héroe
+        return (
+          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1 p-2">
+            <div className="bg-orange-700 p-2 rounded shadow-inner">
+              <table className="w-full text-left">
+                <tbody>
+                  <tr>
+                    <th className="pr-2">Nombre:</th>
+                    <td>{selectedCharacter.name}</td>
+                    <th className="pr-2">Bando:</th>
+                    <td>{selectedCharacter.bando}</td>
+                  </tr>
+                  <tr>
+                    <th className="pr-2">Salud:</th>
+                    <td>{currentHealth}</td>
+                    <th className="pr-2">Ataque:</th>
+                    <td>{attackDamage}</td>
+                  </tr>
+                  <tr>
+                    <th className="pr-2">Avatar:</th>
+                    <td>{selectedCharacter.imgCode}</td>
+                    <th className="pr-2">Tipo:</th>
+                    <td>{selectedCharacter.type}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={handleBuyPotion}
+              className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-white p-2 rounded shadow-md ${
+                gold < 50 || currentHealth === health ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={gold < 50 || currentHealth === health}
+            >
+              🧪 Comprar Poción de Vida (50 oro)
+            </button>
+            <button
+              onClick={() => handlerBack()}
+              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-white p-2 rounded shadow-md"
+            >
+              Volver al Menú Principal
+            </button>
+          </div>
+        );
+      }else if (selectedCharacter.name === 'Ayuntamiento') {
+        const handleRecoverHero = () => {
+          if (gold >= 30) {
+            // Implement logic to recover hero for the town hall
+            alert('Héroe recuperado en el ayuntamiento.');
+            updateResources(gold - 30, builders, heroes);
+          } else {
+            alert('No tienes suficiente oro para recuperar el héroe.');
+          }
+        };
+      
+        const handleRecoverBuilder = () => {
+          if (gold >= 40) {
+            // Implement logic to recover builder for the town hall
+            alert('Constructor recuperado en el ayuntamiento.');
+            updateResources(gold - 40, builders, heroes);
+          } else {
+            alert('No tienes suficiente oro para recuperar el constructor.');
+          }
+        };
+      
+        // Menú para el ayuntamiento
+        return (
+          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
+            <div className="bg-orange-700 p-2 rounded shadow-inner">
+              <p className="text-center text-sm">Opciones del Ayuntamiento:</p>
+              <div className="grid grid-cols-2 gap-1">
+                <button
+                  onClick={handleRecoverHero}
+                  className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md ${
+                    gold < 30 ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={gold < 30}
+                >
+                  🛡️ Recuperar Héroe (30 oro)
+                </button>
+                <button
+                  onClick={handleRecoverBuilder}
+                  className={`mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md ${
+                    gold < 40 ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={gold < 40}
+                >
+                  🏗️ Recuperar Constructor (40 oro)
+                </button>
+                <button
+                  onClick={() => handlerBack()}
+                  className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md"
+                >
+                  Volver al Menú Principal
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        
       } else {
-        // Otra lógica para personajes seleccionados que no son constructores
+        // Otra lógica para personajes seleccionados que no son constructores o héroes
         return (
           <div>
             <p>Has seleccionado: {selectedCharacter.name}</p>
@@ -323,19 +455,19 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         {renderMonitors()}
 
         {/* Sección central: Menú dinámico */}
-        <div className="w-1/2 flex flex-col text-center bg-orange-800 rounded-md text-green-900 font-bold p-2">
+        <div className="w-1/2 flex flex-col text-center bg-orange-800 rounded-md text-white font-bold p-2">
           {isSelected ? (
-            <div className="flex flex-col bg-orange-800 rounded-md text-green-900 font-bold gap-1">
+            <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
               {renderCentralMenuContent()}
             </div>
           ) : (
-            <div className="flex flex-col bg-orange-800 rounded-md text-green-900 font-bold gap-1">
+            <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
               {activeDynamicMenuItem ? (
-                <div className="flex flex-col bg-orange-800 rounded-md text-green-900 font-bold gap-1">
+                <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
                   {activeDynamicMenuItem.content}
                 </div>
               ) : (
-                <div className="flex flex-col bg-orange-800 rounded-md text-green-900 font-bold gap-1">
+                <div className="flex flex-col bg-orange-800 rounded-md text-green-950 font-bold gap-1">
                   {dynamicMenuItems.map((item, index) => (
                     <button
                       key={index}
@@ -352,7 +484,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         </div>
 
         {/* Sección derecha: Opciones del juego */}
-        <div className="w-1/4 flex flex-col bg-orange-800 rounded-md text-green-900 font-bold p-2 gap-1">
+        <div className="w-1/4 flex flex-col bg-orange-800 rounded-md text-green-950 font-bold p-2 gap-1">
           {staticMenuItems.map((item, index) => (
             <button
               key={index}
