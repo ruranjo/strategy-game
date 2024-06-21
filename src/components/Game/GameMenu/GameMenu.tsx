@@ -111,8 +111,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
 
   const monitorItems: MonitorItem[] = [
     { label: "ORO", emoji: "💰", value: gold },
-    { label: "CONSTRUCTORES", emoji: "👨‍🌾", value: builders },
-    { label: "HEROES", emoji: "👨‍🔧", value: heroes },
+    { label: "CONSTRUCTORES", emoji: "👨‍🔧", value: builders },
+    { label: "HEROES", emoji: "🏌️‍♂️", value: heroes },
   ];
 
 
