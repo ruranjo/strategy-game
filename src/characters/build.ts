@@ -70,8 +70,8 @@ export const MinaDeOro: Character<MinaDeOroProperties> = {
   description: 'Genera oro, moneda principal',
   properties: {
       cost: 150,
-      productionRate: 10,
-      capacity: 500,
+      productionRate: 100,
+      capacity: 5000,
       timeToFullCapacity: 1,
       buildDate: new Date(),
       isFull: false,

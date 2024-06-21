@@ -1,7 +1,6 @@
 // Base properties interface
 export interface BaseProperties {
   // Common properties for all character types can go here if needed
-  
 }
 
 // Properties specific to heroes
@@ -75,6 +74,6 @@ export interface Character<T extends BaseProperties> {
   description: string;
   properties: T;
   OnAttack: boolean;
-  type: 'ser' | 'decoracion' | 'edificio'; // Campo de tipo para el personaje
-  bando: 'enemigo' | 'jugador' | 'neutro' ; // Campo de tipo para el personaje
+  type: "ser" | "decoracion" | "edificio"; // Campo de tipo para el personaje
+  bando: "enemigo" | "jugador" | "neutro"; // Campo de tipo para el personaje
 }
