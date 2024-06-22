@@ -279,7 +279,7 @@ const GameMap: React.FC<GameMapProps> = () => {
 
         setBoardMatrix(finalBoardMatrix); // Update board to reflect OnAttack status
       }
-    }, 1000);
+    }, 500); // 0.5 second interval
   };
 
   const startAttackOnBuilding = (
