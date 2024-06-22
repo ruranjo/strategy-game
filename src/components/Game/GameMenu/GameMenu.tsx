@@ -397,8 +397,6 @@ const GameMenu: React.FC<GameMenuProps> = () => {
                 <table className="w-full text-left">
                   <tbody>
                     <tr>
-                      <th className="pr-2">Bando:</th>
-                      <td>{bando}</td>
                       <th className="">Resistencia Actual:</th>
                       <td>
                         {currentResistance}/{maxResistance}
@@ -476,8 +474,6 @@ const GameMenu: React.FC<GameMenuProps> = () => {
                 <table className="w-full text-left">
                   <tbody>
                     <tr>
-                      <th className="pr-2">Bando:</th>
-                      <td>{bando}</td>
                       <th className="pr-2">Resistencia Actual:</th>
                       <td>
                         {currentResistance}/{maxResistance}
