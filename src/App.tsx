@@ -1,30 +1,54 @@
+// Importa los hooks useEffect y useState de React
 import { useEffect, useState } from "react";
+
+// Importa los componentes GameMap y GameMenu desde el archivo de componentes del juego
 import { GameMap, GameMenu } from "./components/Game";
+
+// Importa varios tipos de propiedades desde el archivo character.type
 import {
-  BaseProperties,
-  Character,
-  TreeProperties,
-  MountainProperties,
+  BaseProperties,     // Propiedades básicas de los personajes o elementos
+  Character,          // Tipo que representa un personaje
+  TreeProperties,     // Propiedades específicas de los árboles
+  MountainProperties, // Propiedades específicas de las montañas
 } from "./types/character.type";
-import { Ayuntamiento, Muralla } from "./characters/build"; // Asegúrate de importar el Ayuntamiento y la Muralla
-import useBoardStore from "./store/BoardStore";
+
+// Importa las construcciones Ayuntamiento y Muralla desde el archivo de construcciones
+import { Ayuntamiento, Muralla } from "./characters/build";
+
+// Importa los héroes Barbarian y GrandWarden desde el archivo de héroes
 import { Barbarian, GrandWarden } from "./characters/heros";
-import useGameStore from "./store/GameStore";
+
+// Importa el constructor desde el archivo de constructores
 import { Constructor } from "./characters/builder";
+
+// Importa los elementos decorativos Mountain y Tree desde el archivo de decoraciones
 import { Mountain, Tree } from "./characters/decorators";
 
+// Importa el hook personalizado useBoardStore para la gestión del estado del tablero
+import useBoardStore from "./store/BoardStore";
+
+// Importa el hook personalizado useGameStore para la gestión del estado del juego
+import useGameStore from "./store/GameStore";
+
 const App = () => {
-  const { setBoardSize, setBoardMatrix } = useBoardStore();
-  const [isLoading, setIsLoading] = useState(true);
+  // Extrae funciones para establecer el tamaño del tablero y la matriz desde useBoardStore
+const { setBoardSize, setBoardMatrix } = useBoardStore();
 
-  const initialRows = 20;
-  const initialCols = 50;
-  const treeCount = 60;
-  const middleCol = Math.ceil(initialCols / 2);
+// Estado local para controlar si la carga está en progreso
+const [isLoading, setIsLoading] = useState(true);
 
-  const { builders } = useGameStore((state) => ({
-    builders: state.builders,
-  }));
+// Configuración inicial del tablero
+const initialRows = 20;       // Número inicial de filas
+const initialCols = 50;       // Número inicial de columnas
+const treeCount = 60;         // Número inicial de árboles
+const middleCol = Math.ceil(initialCols / 2); // Columna central del tablero
+
+// Extrae los constructores y héroes desde el estado del juego
+const { builders, heroes } = useGameStore((state) => ({
+  builders: state.builders,
+  heroes: state.heroes
+}));
+
 
   const getRandomPosition = (
     rows: number,
@@ -87,37 +111,6 @@ const App = () => {
       bando: "jugador",
     };
 
-    // Colocar al primer Bárbaro en una posición aleatoria en la parte izquierda
-    const { row: barbarianRow1, col: barbarianCol1 } = getRandomPosition(
-      initialRows,
-      initialCols,
-      aux,
-      0,
-      middleCol
-    );
-    const auxBarbarian1 = JSON.parse(JSON.stringify(Barbarian));
-    aux[barbarianRow1][barbarianCol1] = {
-      ...auxBarbarian1,
-      x: barbarianRow1,
-      y: barbarianCol1,
-      bando: "jugador",
-    };
-
-    // Colocar al segundo Bárbaro en una posición aleatoria en la parte izquierda
-    const { row: barbarianRow2, col: barbarianCol2 } = getRandomPosition(
-      initialRows,
-      initialCols,
-      aux,
-      0,
-      middleCol
-    );
-    const auxBarbarian2 = JSON.parse(JSON.stringify(Barbarian));
-    aux[barbarianRow2][barbarianCol2] = {
-      ...auxBarbarian2,
-      x: barbarianRow2,
-      y: barbarianCol2,
-      bando: "jugador",
-    };
 
     // Colocar Constructores en posiciones aleatorias no ocupadas en la parte izquierda
     for (let i = 0; i < builders; i++) {
@@ -130,6 +123,23 @@ const App = () => {
       );
       const auxConstructor = JSON.parse(JSON.stringify(Constructor));
       aux[row][col] = { ...auxConstructor, x: row, y: col, bando: "jugador" };
+    }
+
+    for (let i = 0; i < heroes; i++) {
+      const { row: barbarianRow2, col: barbarianCol2 } = getRandomPosition(
+        initialRows,
+        initialCols,
+        aux,
+        0,
+        middleCol
+      );
+      const auxBarbarian2 = JSON.parse(JSON.stringify(Barbarian));
+      aux[barbarianRow2][barbarianCol2] = {
+        ...auxBarbarian2,
+        x: barbarianRow2,
+        y: barbarianCol2,
+        bando: "jugador",
+      };
     }
 
     // Colocar 10 arañas en posiciones aleatorias en la parte izquierda
@@ -225,8 +235,8 @@ const App = () => {
   }
 
   return (
-    <div className="App">
-      <h1>Tablero de Juego</h1>
+    <div className="App p-6">
+      
       <GameMap /> {/* Renderizamos el componente GameMap */}
       <GameMenu />
     </div>

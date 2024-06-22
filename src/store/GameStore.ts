@@ -32,7 +32,7 @@ const createGameState = <T extends BaseProperties>() => (
   goldTotalCapacity: 1000, // Inicializar la capacidad total de oro
   intialGoldCapacity: 1000,
   builders: 1,
-  heroes: 0,
+  heroes: 2,
   selectedCharacter: null,
   selectedBuild: null,
   isSelected: false,

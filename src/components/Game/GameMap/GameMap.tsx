@@ -591,7 +591,7 @@ const GameMap: React.FC<GameMapProps> = () => {
   };
 
   return (
-    <div className="flex flex-col items-center border border-red-800">
+    <div className="flex flex-col items-center bg-green-400 rounded-md p-4">
       {boardMatrix.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
@@ -610,11 +610,12 @@ const GameMap: React.FC<GameMapProps> = () => {
           ))}
         </div>
       ))}
-      {hoveredCell && (
+
+      {/* hoveredCell && (
         <div className="mb-2 text-black">
           Coordenadas: {hoveredCell.row}, {hoveredCell.col}
         </div>
-      )}
+      )* */}
     </div>
   );
 };

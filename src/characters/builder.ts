@@ -9,7 +9,9 @@ export const Constructor: Character<BuilderProperties> = {
     y: 0,
     description: 'Construye y mejora edificios',
     properties: {
-      constructionSpeed: 1
+      constructionSpeed: 1,
+      currentHealth:500,
+      health: 500,
     },
     type:"ser",
     OnAttack: false,

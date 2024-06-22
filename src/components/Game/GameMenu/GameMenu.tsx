@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import useGameStore from "../../../store/GameStore";
 import {
+  AyuntamientoProperties,
+  BuilderProperties,
   BuildingProperties,
   Character,
   HeroProperties,
   MinaDeOroProperties,
+  MurallaProperties,
 } from "../../../types/character.type";
 import { AlmacenDeOro, MinaDeOro, Muralla } from "../../../characters/build";
 import useBoardStore from "../../../store/BoardStore";
@@ -120,7 +123,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
     label: "CREAR EDIFICIOS",
     emoji: "🏠",
     content: (
-      <div className="bg-orange-800 rounded-md text-white font-bold ">
+      <div className=" bg-yellow-950 rounded-md text-white font-bold ">
         <div className="grid grid-cols-2 gap-1">
           <button
             className={`bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md flex items-center justify-center ${
@@ -192,7 +195,7 @@ const GameMenu: React.FC<GameMenuProps> = () => {
 
   const renderMonitors = () => {
     return (
-      <div className="flex flex-col w-1/4 bg-orange-800 rounded-md text-white font-medium p-2">
+      <div className="flex flex-col w-1/4  bg-yellow-950 rounded-md text-white font-medium p-2">
         {monitorItems.map((item, index) => (
           <div key={index} className="bg-brown-600 p-2 rounded">
             <span role="img" aria-label={item.label}>
@@ -239,47 +242,35 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         goldGenerated = Math.min(goldGenerated, capacity);
 
         return (
-          <div className="flex flex-col md:flex-row bg-orange-800 rounded-md text-white font-bold gap-4 p-4 shadow-lg">
-            <div className="w-full md:w-1/2">
-              <p className="text-center text-sm">Detalles de la Mina de Oro:</p>
-              <div className="bg-orange-700 text-sm rounded-md shadow-inner">
-                <table className="w-full text-left">
-                  <tbody>
-                    <tr>
-                      <td className="pr-2">💰 Oro actual:</td>
-                      <td>{currentGold}</td>
-                    </tr>
-                    <tr>
-                      <td className="pr-2">🏭 Tasa de producción:</td>
-                      <td>{productionRate} oro/segundo</td>
-                    </tr>
-                    <tr>
-                      <td className="pr-2">🏦 Capacidad de almacenamiento:</td>
-                      <td>{capacity}</td>
-                    </tr>
-                    <tr>
-                      <td className="pr-2">🕒 Oro generado hasta ahora:</td>
-                      <td>{goldGenerated}</td>
-                    </tr>
-                  </tbody>
-                </table>
+          <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-2 p-2 shadow-lg">
+            <div className="w-full ">
+            <p className="text-center text-sm">Detalles de la Mina de Oro:</p>
+            <div className="bg-yellow-800 text-sm rounded-md shadow-inner p-4 flex flex-wrap justify-between">
+              <div className="flex flex-col items-center mb-2 w-1/2 md:w-1/4">
+                <span>💰 Oro actual:</span>
+                <span>{Math.ceil(currentGold)}</span>
+              </div>
+              <div className="flex flex-col items-center mb-2 w-1/2 md:w-1/4">
+                <span>🏭 Tasa de producción:</span>
+                <span>{productionRate} oro/segundo</span>
+              </div>
+              <div className="flex flex-col items-center mb-2 w-1/2 md:w-1/4">
+                <span>🏦 Capacidad de almacenamiento:</span>
+                <span>{capacity}</span>
+              </div>
+              <div className="flex flex-col items-center mb-2 w-1/2 md:w-1/4">
+                <span>🕒 Oro generado hasta ahora:</span>
+                <span>{goldGenerated}</span>
               </div>
             </div>
+          </div>
 
-            <div className="w-full md:w-1/2 flex flex-col items-center">
-              <button
-                onClick={() => {
-                  // Implementa aquí la lógica para retirar fondos de la Mina de Oro
-                  console.log("Retirar fondos de la Mina de Oro");
-                  // Puedes realizar acciones adicionales aquí, como actualizar el estado del juego
-                }}
-                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md mt-2 md:mt-0"
-              >
-                Retirar Fondos
-              </button>
+
+            <div className="w-full flex flex-col items-center">
+              
               <button
                 onClick={() => handlerBack()}
-                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md mt-2"
+                className="bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md "
               >
                 Volver al Menú Principal
               </button>
@@ -288,8 +279,21 @@ const GameMenu: React.FC<GameMenuProps> = () => {
         );
       } else if (selectedCharacter.role === "builder") {
         // Menú para el constructor
+        const propBuilder = selectedCharacter.properties as BuilderProperties
         return (
-          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
+          <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1">
+            <div className="bg-yellow-800 p-2 rounded shadow-inner">
+              <table className="w-full text-left">
+                <tbody>
+                  <tr>
+                    <th className="pr-2">Salud:</th>
+                    <td>{propBuilder.health}</td>
+                    <th className="pr-2">Velocidad:</th>
+                    <td>{propBuilder.constructionSpeed}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             {buildingMenu.content}
           </div>
         );
@@ -318,8 +322,8 @@ const GameMenu: React.FC<GameMenuProps> = () => {
 
         // Menú para el héroe
         return (
-          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1 p-2">
-            <div className="bg-orange-700 p-2 rounded shadow-inner">
+          <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1 p-2">
+            <div className="bg-yellow-800 p-2 rounded shadow-inner">
               <table className="w-full text-left">
                 <tbody>
                   <tr>
@@ -342,22 +346,145 @@ const GameMenu: React.FC<GameMenuProps> = () => {
             </button>
             <button
               onClick={() => handlerBack()}
-              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-white p-2 rounded shadow-md"
+              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-green-950 p-2 rounded shadow-md"
             >
               Volver al Menú Principal
             </button>
           </div>
         );
       } else if (selectedCharacter.name === "Ayuntamiento") {
-   
+        const {
+          name,
+          imgCode,
+          bando
+        } = selectedCharacter;
+        const { maxResistance, currentResistance } = selectedCharacter.properties as AyuntamientoProperties;
+
+        
+
+        const countPlayerHeroes = () => {
+          return boardMatrix.reduce((count, row) => {
+            return count + row.filter(cell => cell && cell.role === 'hero' && cell.bando === 'jugador').length;
+          }, 0);
+        };
+
 
         // Menú para el ayuntamiento
         return (
-          <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
-            <div className="bg-orange-700 p-2 rounded shadow-inner"></div>
-          </div>
+          <div className="flex flex-col bg-yellow-950 rounded-md text-white font-bold gap-1">
+              <div className=" p-2 rounded shadow-inner flex flex-col gap-5">
+                <p className="text-center text-sm"><span>{imgCode} </span> {name}</p>
+                
+
+                <div className="bg-yellow-800 p-2 rounded shadow-inner">
+                  <table className="w-full text-left">
+                    <tbody>
+                      <tr>
+                        <th className="pr-2">Bando:</th>
+                        <td>{bando}</td>
+                        <th className="">Resistencia Actual:</th>
+                        <td>{currentResistance}/{maxResistance}</td>
+                        <th className="">heroes:</th>
+                        <td>{countPlayerHeroes()}/{heroes}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+            <button
+              onClick={() => handlerBack()}
+              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-yellow-950 p-2 rounded shadow-md"
+            >
+              Volver al Menú Principal
+            </button>
+                  
+                
+              </div>
+            </div>
         );
-      } else {
+      }else if (selectedCharacter.name === "Almacén de Oro") {
+   
+
+        // Menú para el Almacén de Oro
+        
+        const {
+          name,
+          imgCode,
+        } = selectedCharacter;
+        const {  capacity, maxResistance, currentResistance } = selectedCharacter.properties as MinaDeOroProperties;
+        
+          return (
+            <div className="flex flex-col bg-yellow-950 rounded-md text-white font-bold gap-1">
+              <div className=" p-2 rounded shadow-inner flex flex-col gap-5">
+                <p className="text-center text-sm"><span>{imgCode} </span> {name}</p>
+                
+
+                <div className="bg-yellow-800 p-2 rounded shadow-inner">
+                  <table className="w-full text-left">
+                    <tbody>
+                      <tr>
+                        <th className="pr-2">Capacidad:</th>
+                        <td>{capacity}</td>
+                        <th className="pr-2">Resistencia Actual:</th>
+                        <td>{currentResistance}/{maxResistance}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                  
+                <button
+              onClick={() => handlerBack()}
+              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-yellow-950 p-2 rounded shadow-md"
+            >
+              Volver al Menú Principal
+            </button>
+                  
+                
+              </div>
+            </div>
+        );
+      } else if (selectedCharacter.name === "Muralla") {
+   
+
+        // Menú para el Almacén de Oro
+        
+          const {
+            name,
+            imgCode,
+            bando
+          } = selectedCharacter;
+          const { maxResistance, currentResistance } = selectedCharacter.properties as MurallaProperties;
+          return (
+            <div className="flex flex-col bg-yellow-950 rounded-md text-white font-bold gap-1">
+              <div className=" p-2 rounded shadow-inner flex flex-col gap-5">
+                <p className="text-center text-sm"><span>{imgCode} </span> {name}</p>
+                
+
+                <div className="bg-yellow-800 p-2 rounded shadow-inner">
+                  <table className="w-full text-left">
+                    <tbody>
+                      <tr>
+                        <th className="pr-2">Bando:</th>
+                        <td>{bando}</td>
+                        <th className="pr-2">Resistencia Actual:</th>
+                        <td>{currentResistance}/{maxResistance}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                  
+                <button
+              onClick={() => handlerBack()}
+              className="mt-2 bg-orange-300 hover:bg-orange-400 focus:bg-orange-400 text-yellow-950 p-2 rounded shadow-md"
+            >
+              Volver al Menú Principal
+            </button>
+                  
+                
+              </div>
+            </div>
+        );
+      }  else {
         // Otra lógica para personajes seleccionados que no son constructores o héroes
         return (
           <div>
@@ -378,25 +505,34 @@ const GameMenu: React.FC<GameMenuProps> = () => {
   };
 
   return (
-    <div className="flex justify-center items-center border bg-orange-900 gap-2 text-black p-2 fixed bottom-0 left-0 right-0">
+    <div className="flex justify-center items-center border bg-yellow-950 gap-2 text-black p-2 fixed bottom-0 left-0 right-0">
       {/* Sección izquierda: Monitores */}
-      <div className="flex gap-4 w-4/6 justify-center bg-white p-2 rounded-md">
+      <div className="flex gap-4 w-4/6 justify-center bg-yellow-700 p-2 rounded-md">
         {renderMonitors()}
 
         {/* Sección central: Menú dinámico */}
-        <div className="w-1/2 flex flex-col text-center bg-orange-800 rounded-md text-white font-bold p-2">
+        <div className="w-1/2 flex flex-col text-center  bg-yellow-950 rounded-md text-white font-bold p-2">
           {isSelected ? (
-            <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
+            <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1">
               {renderCentralMenuContent()}
             </div>
           ) : (
-            <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
+            <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1">
               {activeDynamicMenuItem ? (
-                <div className="flex flex-col bg-orange-800 rounded-md text-white font-bold gap-1">
+                <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1">
                   {activeDynamicMenuItem.content}
                 </div>
               ) : (
-                <div className="flex flex-col bg-orange-800 rounded-md text-green-950 font-bold gap-1"></div>
+                <div className="flex flex-col h-full">
+                    <div className="flex flex-col  bg-yellow-950 rounded-md text-white font-bold gap-1 h-full">
+                        <div className="flex-grow font-bold text-2xl bg-yellow-800 w-full  flex items-center justify-center">
+                            MENU PRINCIPAL
+                        </div>
+                        <div className="flex-grow bg-yellow-800 w-full h-[100px] flex items-center justify-center">
+                            SELECCIONA UN ELEMENTO
+                        </div>
+                    </div>
+                </div>
               )}
             </div>
           )}

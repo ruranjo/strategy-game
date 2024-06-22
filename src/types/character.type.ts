@@ -55,6 +55,8 @@ export interface TreeProperties extends BaseProperties {
 
 export interface BuilderProperties extends BaseProperties {
   constructionSpeed: number;
+  health: number,
+  currentHealth: number,
 }
 
 // Specific properties for mountain characters
